@@ -11,6 +11,9 @@ import (
 type Repo interface {
 	AddCampaign(ctx context.Context, campaign *Campaign) error
 	GetCampaignByUUID(ctx context.Context, uuid string) (*Campaign, error)
+
+	AddSendTask(ctx context.Context, sendTask *SendTask) error
+	GetSendTaskByUUID(ctx context.Context, uuid string) (*SendTask, error)
 }
 
 func NewSQLRepo(db *gorm.DB) Repo {
@@ -46,4 +49,29 @@ func (r *sqlRepo) GetCampaignByUUID(ctx context.Context, uuid string) (*Campaign
 	}
 
 	return &campaign, nil
+}
+
+func (r *sqlRepo) AddSendTask(ctx context.Context, sendTask *SendTask) error {
+	err := csql.GetConn(ctx, r.db).Save(sendTask).Error
+	if err != nil {
+		return cerror.New(err, "failed to add sendTask", nil)
+	}
+
+	return nil
+}
+
+func (r *sqlRepo) GetSendTaskByUUID(ctx context.Context, uuid string) (*SendTask, error) {
+	var sendTask SendTask
+
+	err := csql.GetConn(ctx, r.db).
+		Where(&SendTask{UUID: uuid}).
+		Find(&sendTask).
+		Error
+	if err != nil {
+		return nil, cerror.New(err, "failed to query sendTask", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	return &sendTask, nil
 }

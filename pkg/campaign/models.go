@@ -8,9 +8,10 @@ const (
 )
 
 const (
-	SendTaskStatusQueued = "QUEUED"
-	SendTaskStatusSent   = "SENT"
-	SendTaskStatusFailed = "FAILED"
+	SendTaskStatusQueued  = "QUEUED"
+	SendTaskStatusSending = "SENDING"
+	SendTaskStatusSent    = "SENT"
+	SendTaskStatusFailed  = "FAILED"
 )
 
 type Campaign struct {
@@ -33,7 +34,6 @@ type SendTask struct {
 	CampaignUUID string `gorm:"not null"`
 	ContactUUID  string `gorm:"not null"`
 	Status       string `gorm:"not null"`
-	Error        *string
 }
 
 func (SendTask) TableName() string {

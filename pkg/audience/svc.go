@@ -29,6 +29,7 @@ type Svc interface {
 	CreateContacts(ctx context.Context, createParams []CreateContactParams) ([]CreateContactResult, error)
 	AddContactsToList(ctx context.Context, listUUID string, contactUUIDs []string) ([]AddContactToListResult, error)
 	ListContacts(ctx context.Context, listUUID string) ([]Contact, error)
+	GetContact(ctx context.Context, contactUUID string) (*Contact, error)
 }
 
 type SvcParams struct {
@@ -128,4 +129,8 @@ func (s *svc) AddContactsToList(ctx context.Context, listUUID string, contactUUI
 
 func (s *svc) ListContacts(ctx context.Context, listUUID string) ([]Contact, error) {
 	return s.repo.FindContactsByListUUID(ctx, listUUID)
+}
+
+func (s *svc) GetContact(ctx context.Context, contactUUID string) (*Contact, error) {
+	return s.repo.GetContactByUUID(ctx, contactUUID)
 }

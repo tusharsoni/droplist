@@ -17,8 +17,10 @@ type CreateCampaignParams struct {
 }
 
 type Svc interface {
+	GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, error)
 	CreateDraftCampaign(ctx context.Context, p CreateCampaignParams) (*Campaign, error)
 	PublishCampaign(ctx context.Context, campaignUUID string) error
+	CompleteSendTask(ctx context.Context, taskUUID, status string) error
 }
 
 type SvcParams struct {
@@ -100,6 +102,42 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 				"contactUUID":  contact.UUID,
 			})
 		}
+	}
+
+	campaign.State = StatePublished
+
+	err = s.repo.AddCampaign(ctx, campaign)
+	if err != nil {
+		return cerror.New(err, "failed to save campaign state", map[string]interface{}{
+			"campaignUUID": campaign.UUID,
+		})
+	}
+
+	return nil
+}
+
+func (s *svc) CompleteSendTask(ctx context.Context, taskUUID, status string) error {
+	if status != SendTaskStatusFailed && status != SendTaskStatusSent {
+		return cerror.New(nil, "task status must be failed or sent", map[string]interface{}{
+			"status": status,
+		})
+	}
+
+	task, err := s.repo.GetSendTaskByUUID(ctx, taskUUID)
+	if err != nil {
+		return cerror.New(err, "failed to get send task", map[string]interface{}{
+			"taskUUID": taskUUID,
+		})
+	}
+
+	task.Status = status
+
+	err = s.repo.AddSendTask(ctx, task)
+	if err != nil {
+		return cerror.New(err, "failed to save task status", map[string]interface{}{
+			"taskUUID": task.UUID,
+			"status":   status,
+		})
 	}
 
 	return nil
