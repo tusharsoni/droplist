@@ -12,6 +12,7 @@ type Repo interface {
 	AddList(ctx context.Context, list *List) error
 	AddContact(ctx context.Context, contact *Contact) error
 	AddContactListJoin(ctx context.Context, contactListJoin *ContactListJoin) error
+	FindContactsByListUUID(ctx context.Context, listUUID string) ([]Contact, error)
 }
 
 func NewSQLRepo(db *gorm.DB) Repo {
@@ -49,4 +50,22 @@ func (r *sqlRepo) AddContactListJoin(ctx context.Context, contactListJoin *Conta
 	}
 
 	return nil
+}
+
+func (r *sqlRepo) FindContactsByListUUID(ctx context.Context, listUUID string) ([]Contact, error) {
+	var contacts []Contact
+
+	err := csql.GetConn(ctx, r.db).
+		Model(&Contact{}).
+		Joins("JOIN contact_list_joins ON contacts.uuid=contact_list_joins.contact_uuid").
+		Where(&ContactListJoin{ListUUID: listUUID}).
+		Find(&contacts).
+		Error
+	if err != nil {
+		return nil, cerror.New(err, "failed to query contacts", map[string]interface{}{
+			"listUUID": listUUID,
+		})
+	}
+
+	return contacts, nil
 }

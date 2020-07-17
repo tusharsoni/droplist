@@ -7,6 +7,12 @@ const (
 	StatePublished = "PUBLISHED"
 )
 
+const (
+	SendTaskStatusQueued = "QUEUED"
+	SendTaskStatusSent   = "SENT"
+	SendTaskStatusFailed = "FAILED"
+)
+
 type Campaign struct {
 	UUID      string    `gorm:"primary_key"`
 	CreatedAt time.Time `gorm:"not null"`
@@ -17,4 +23,19 @@ type Campaign struct {
 	FromName  string `gorm:"not null"`
 	FromEmail string `gorm:"not null"`
 	State     string `gorm:"not null"`
+}
+
+type SendTask struct {
+	UUID      string    `gorm:"primary_key"`
+	CreatedAt time.Time `gorm:"not null"`
+	UpdatedAt time.Time `gorm:"not null"`
+
+	CampaignUUID string `gorm:"not null"`
+	ContactUUID  string `gorm:"not null"`
+	Status       string `gorm:"not null"`
+	Error        *string
+}
+
+func (SendTask) TableName() string {
+	return "campaign_send_queue"
 }

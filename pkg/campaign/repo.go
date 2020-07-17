@@ -10,6 +10,7 @@ import (
 
 type Repo interface {
 	AddCampaign(ctx context.Context, campaign *Campaign) error
+	GetCampaignByUUID(ctx context.Context, uuid string) (*Campaign, error)
 }
 
 func NewSQLRepo(db *gorm.DB) Repo {
@@ -29,4 +30,20 @@ func (r *sqlRepo) AddCampaign(ctx context.Context, campaign *Campaign) error {
 	}
 
 	return nil
+}
+
+func (r *sqlRepo) GetCampaignByUUID(ctx context.Context, uuid string) (*Campaign, error) {
+	var campaign Campaign
+
+	err := csql.GetConn(ctx, r.db).
+		Where(&Campaign{UUID: uuid}).
+		Find(&campaign).
+		Error
+	if err != nil {
+		return nil, cerror.New(err, "failed to query campaign", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	return &campaign, nil
 }

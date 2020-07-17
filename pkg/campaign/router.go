@@ -3,6 +3,8 @@ package campaign
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"github.com/tusharsoni/copper/chttp"
 	"github.com/tusharsoni/copper/clogger"
 	"go.uber.org/fx"
@@ -59,4 +61,25 @@ func (ro *Router) HandleCreateDraftCampaign(w http.ResponseWriter, r *http.Reque
 	}
 
 	ro.resp.OK(w, campaign)
+}
+
+func NewPublishCampaignRoute(ro *Router) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:    "/api/campaigns/{uuid}/publish",
+		Methods: []string{http.MethodPost},
+		Handler: http.HandlerFunc(ro.HandlePublishCampaign),
+	}}
+}
+
+func (ro *Router) HandlePublishCampaign(w http.ResponseWriter, r *http.Request) {
+	var campaignUUID = mux.Vars(r)["uuid"]
+
+	err := ro.svc.PublishCampaign(r.Context(), campaignUUID)
+	if err != nil {
+		ro.logger.Error("Failed to publish campaign", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, nil)
 }

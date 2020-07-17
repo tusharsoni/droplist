@@ -6,7 +6,7 @@ import (
 )
 
 func RunMigrations(db *gorm.DB) error {
-	err := db.AutoMigrate(Campaign{}).Error
+	err := db.AutoMigrate(Campaign{}, SendTask{}).Error
 	if err != nil {
 		return cerror.New(err, "failed to auto migrate campaign models", nil)
 	}
