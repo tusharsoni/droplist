@@ -8,4 +8,5 @@ var Fx = fx.Provide(
 
 	NewRouter,
 	NewCreateListRoute,
+	NewCreateContactsRoute,
 )

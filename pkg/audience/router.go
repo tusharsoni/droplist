@@ -66,3 +66,30 @@ func (ro *Router) HandleCreateList(w http.ResponseWriter, r *http.Request) {
 
 	ro.resp.OK(w, list)
 }
+
+func NewCreateContactsRoute(ro *Router) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:    "/api/audiences/contacts",
+		Methods: []string{http.MethodPost},
+		Handler: http.HandlerFunc(ro.HandleCreateContacts),
+	}}
+}
+
+func (ro *Router) HandleCreateContacts(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Contacts []CreateContactParams `json:"contacts" valid:"optional"`
+	}
+
+	if !ro.req.Read(w, r, &body) {
+		return
+	}
+
+	results, err := ro.svc.CreateContacts(r.Context(), body.Contacts)
+	if err != nil {
+		ro.logger.Error("Failed to create contacts", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, results)
+}
