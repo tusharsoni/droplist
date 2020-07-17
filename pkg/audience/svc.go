@@ -19,9 +19,15 @@ type CreateContactResult struct {
 	Success bool   `json:"success"`
 }
 
+type AddContactToListResult struct {
+	ContactUUID string `json:"contact_uuid"`
+	Success     bool   `json:"success"`
+}
+
 type Svc interface {
 	CreateList(ctx context.Context, name, userUUID string) (*List, error)
 	CreateContacts(ctx context.Context, createParams []CreateContactParams) ([]CreateContactResult, error)
+	AddContactsToList(ctx context.Context, listUUID string, contactUUIDs []string) ([]AddContactToListResult, error)
 }
 
 type SvcParams struct {
@@ -72,7 +78,7 @@ func (s *svc) CreateContacts(ctx context.Context, createParams []CreateContactPa
 			s.logger.WithTags(map[string]interface{}{
 				"email":  p.Email,
 				"params": p.Params,
-			}).Error("Failed to add contact", err)
+			}).Error("Failed to save contact", err)
 			results[i] = CreateContactResult{
 				Email:   p.Email,
 				Success: false,
@@ -83,6 +89,36 @@ func (s *svc) CreateContacts(ctx context.Context, createParams []CreateContactPa
 		results[i] = CreateContactResult{
 			Email:   p.Email,
 			Success: true,
+		}
+	}
+
+	return results, nil
+}
+
+func (s *svc) AddContactsToList(ctx context.Context, listUUID string, contactUUIDs []string) ([]AddContactToListResult, error) {
+	results := make([]AddContactToListResult, len(contactUUIDs))
+
+	for i, contactUUID := range contactUUIDs {
+		err := s.repo.AddContactListJoin(ctx, &ContactListJoin{
+			UUID:        uuid.New().String(),
+			ListUUID:    listUUID,
+			ContactUUID: contactUUID,
+		})
+		if err != nil {
+			s.logger.WithTags(map[string]interface{}{
+				"listUUID":   listUUID,
+				"concatUUID": contactUUID,
+			}).Error("Failed to add contact to list", err)
+			results[i] = AddContactToListResult{
+				ContactUUID: contactUUID,
+				Success:     false,
+			}
+			continue
+		}
+
+		results[i] = AddContactToListResult{
+			ContactUUID: contactUUID,
+			Success:     true,
 		}
 	}
 

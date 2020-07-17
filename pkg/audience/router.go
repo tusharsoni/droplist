@@ -3,6 +3,8 @@ package audience
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"github.com/tusharsoni/copper/chttp"
 	"github.com/tusharsoni/copper/clogger"
 	"go.uber.org/fx"
@@ -87,6 +89,36 @@ func (ro *Router) HandleCreateContacts(w http.ResponseWriter, r *http.Request) {
 	results, err := ro.svc.CreateContacts(r.Context(), body.Contacts)
 	if err != nil {
 		ro.logger.Error("Failed to create contacts", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, results)
+}
+
+func NewAddContactsToListRoute(ro *Router) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:    "/api/audiences/lists/{uuid}/contacts",
+		Methods: []string{http.MethodPost},
+		Handler: http.HandlerFunc(ro.HandleAddContactsToList),
+	}}
+}
+
+func (ro *Router) HandleAddContactsToList(w http.ResponseWriter, r *http.Request) {
+	var (
+		body struct {
+			ContactUUIDs []string `json:"contact_uuids" valid:"optional"`
+		}
+		listUUID = mux.Vars(r)["uuid"]
+	)
+
+	if !ro.req.Read(w, r, &body) {
+		return
+	}
+
+	results, err := ro.svc.AddContactsToList(r.Context(), listUUID, body.ContactUUIDs)
+	if err != nil {
+		ro.logger.Error("Failed to add contacts to list", err)
 		ro.resp.InternalErr(w)
 		return
 	}

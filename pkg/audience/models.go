@@ -24,3 +24,9 @@ type Contact struct {
 	Status string `gorm:"not null"`
 	Params string `gorm:"not null"`
 }
+
+type ContactListJoin struct {
+	UUID        string `gorm:"primary_key"`
+	ListUUID    string `gorm:"not null"`
+	ContactUUID string `gorm:"not null"`
+}
