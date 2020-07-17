@@ -3,6 +3,7 @@ package main
 import (
 	"shoot/pkg/audience"
 	"shoot/pkg/campaign"
+	"shoot/pkg/content"
 
 	"github.com/tusharsoni/copper/cmailer"
 
@@ -22,10 +23,12 @@ func main() {
 
 		audience.Fx,
 		campaign.Fx,
+		content.Fx,
 
 		fx.Invoke(
 			audience.RunMigrations,
 			campaign.RunMigrations,
+			content.RunMigrations,
 		),
 
 		fx.Invoke(
