@@ -40,7 +40,7 @@ func NewRouter(p RouterParams) *Router {
 
 func NewCreateDraftCampaignRoute(ro *Router) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:    "/api/campaigns/create",
+		Path:    "/api/campaigns",
 		Methods: []string{http.MethodPost},
 		Handler: http.HandlerFunc(ro.HandleCreateDraftCampaign),
 	}}

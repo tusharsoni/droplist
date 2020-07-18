@@ -40,7 +40,7 @@ func NewRouter(p RouterParams) *Router {
 
 func NewCreateListRoute(ro *Router) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:    "/api/audiences/lists",
+		Path:    "/api/audience/lists",
 		Methods: []string{http.MethodPost},
 		Handler: http.HandlerFunc(ro.HandleCreateList),
 	}}
@@ -71,7 +71,7 @@ func (ro *Router) HandleCreateList(w http.ResponseWriter, r *http.Request) {
 
 func NewCreateContactsRoute(ro *Router) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:    "/api/audiences/contacts",
+		Path:    "/api/audience/contacts",
 		Methods: []string{http.MethodPost},
 		Handler: http.HandlerFunc(ro.HandleCreateContacts),
 	}}
@@ -98,7 +98,7 @@ func (ro *Router) HandleCreateContacts(w http.ResponseWriter, r *http.Request) {
 
 func NewAddContactsToListRoute(ro *Router) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:    "/api/audiences/lists/{uuid}/contacts",
+		Path:    "/api/audience/lists/{uuid}/contacts",
 		Methods: []string{http.MethodPost},
 		Handler: http.HandlerFunc(ro.HandleAddContactsToList),
 	}}
