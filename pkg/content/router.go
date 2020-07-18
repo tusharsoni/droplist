@@ -51,7 +51,11 @@ func (ro *Router) HandleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := ro.svc.CreateTemplate(r.Context(), body)
+	ctx := r.Context()
+	// todo
+	userUUID := "test-user-1"
+
+	tmpl, err := ro.svc.CreateTemplate(ctx, userUUID, body)
 	if err != nil {
 		ro.logger.Error("Failed to create template", err)
 		ro.resp.InternalErr(w)

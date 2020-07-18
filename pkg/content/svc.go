@@ -15,7 +15,7 @@ type CreateTemplateParams struct {
 }
 
 type Svc interface {
-	CreateTemplate(ctx context.Context, p CreateTemplateParams) (*Template, error)
+	CreateTemplate(ctx context.Context, userUUID string, p CreateTemplateParams) (*Template, error)
 	GetTemplate(ctx context.Context, uuid string) (*Template, error)
 }
 
@@ -35,12 +35,13 @@ type svc struct {
 	repo Repo
 }
 
-func (s *svc) CreateTemplate(ctx context.Context, p CreateTemplateParams) (*Template, error) {
+func (s *svc) CreateTemplate(ctx context.Context, userUUID string, p CreateTemplateParams) (*Template, error) {
 	tmpl := &Template{
-		UUID:     uuid.New().String(),
-		Name:     p.Name,
-		Subject:  p.Subject,
-		HTMLBody: p.HTMLBody,
+		UUID:      uuid.New().String(),
+		CreatedBy: userUUID,
+		Name:      p.Name,
+		Subject:   p.Subject,
+		HTMLBody:  p.HTMLBody,
 	}
 
 	err := s.repo.AddTemplate(ctx, tmpl)

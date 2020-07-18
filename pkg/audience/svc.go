@@ -26,7 +26,7 @@ type AddContactToListResult struct {
 
 type Svc interface {
 	CreateList(ctx context.Context, name, userUUID string) (*List, error)
-	CreateContacts(ctx context.Context, createParams []CreateContactParams) ([]CreateContactResult, error)
+	CreateContacts(ctx context.Context, userUUID string, p []CreateContactParams) ([]CreateContactResult, error)
 	AddContactsToList(ctx context.Context, listUUID string, contactUUIDs []string) ([]AddContactToListResult, error)
 	ListContacts(ctx context.Context, listUUID string) ([]Contact, error)
 	GetContact(ctx context.Context, contactUUID string) (*Contact, error)
@@ -66,15 +66,16 @@ func (s *svc) CreateList(ctx context.Context, name, userUUID string) (*List, err
 	return list, nil
 }
 
-func (s *svc) CreateContacts(ctx context.Context, createParams []CreateContactParams) ([]CreateContactResult, error) {
+func (s *svc) CreateContacts(ctx context.Context, userUUID string, createParams []CreateContactParams) ([]CreateContactResult, error) {
 	results := make([]CreateContactResult, len(createParams))
 
 	for i, p := range createParams {
 		err := s.repo.AddContact(ctx, &Contact{
-			UUID:   uuid.New().String(),
-			Email:  p.Email,
-			Status: ContactStatusSubscribed,
-			Params: p.Params,
+			UUID:      uuid.New().String(),
+			CreatedBy: userUUID,
+			Email:     p.Email,
+			Status:    ContactStatusSubscribed,
+			Params:    p.Params,
 		})
 		if err != nil {
 			s.logger.WithTags(map[string]interface{}{

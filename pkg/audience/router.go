@@ -86,7 +86,11 @@ func (ro *Router) HandleCreateContacts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results, err := ro.svc.CreateContacts(r.Context(), body.Contacts)
+	ctx := r.Context()
+	// todo
+	userUUID := "test-user-1"
+
+	results, err := ro.svc.CreateContacts(ctx, userUUID, body.Contacts)
 	if err != nil {
 		ro.logger.Error("Failed to create contacts", err)
 		ro.resp.InternalErr(w)

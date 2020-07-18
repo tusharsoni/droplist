@@ -20,9 +20,10 @@ type Contact struct {
 	CreatedAt time.Time `gorm:"not null"`
 	UpdatedAt time.Time `gorm:"not null"`
 
-	Email  string `gorm:"not null;unique"`
-	Status string `gorm:"not null"`
-	Params string `gorm:"not null"`
+	CreatedBy string `gorm:"not null"`
+	Email     string `gorm:"not null"`
+	Status    string `gorm:"not null"`
+	Params    string `gorm:"not null"`
 }
 
 type ContactListJoin struct {
