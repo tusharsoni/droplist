@@ -2,8 +2,9 @@ package campaign
 
 import (
 	"context"
-	"shoot/pkg/audience"
-	"shoot/pkg/content"
+	"encoding/json"
+	"html/template"
+	"strings"
 	"time"
 
 	"github.com/tusharsoni/copper/clogger"
@@ -16,8 +17,6 @@ type MailerParams struct {
 
 	Svc       Svc
 	Queue     Queue
-	Content   content.Svc
-	Audience  audience.Svc
 	Mailer    cmailer.Mailer
 	Logger    clogger.Logger
 	Lifecycle fx.Lifecycle
@@ -44,7 +43,11 @@ func RunMailer(p MailerParams) {
 	)
 
 	for {
-		ctx, cancel := context.WithTimeout(context.Background(), runTime)
+		var (
+			ctx, cancel   = context.WithTimeout(context.Background(), runTime)
+			contactParams = make(map[string]interface{})
+			emailBody     strings.Builder
+		)
 
 		task, err := p.Queue.NextSendTask(ctx)
 		if err != nil {
@@ -59,52 +62,45 @@ func RunMailer(p MailerParams) {
 			continue
 		}
 
-		campaign, err := p.Svc.GetCampaign(ctx, task.CampaignUUID)
-		if err != nil {
-			p.Logger.Error("Failed to get campaign", err)
+		handleTaskErr := func(log string, err error) {
+			p.Logger.Error(log, err)
 			err = p.Svc.CompleteSendTask(ctx, task.UUID, SendTaskStatusFailed)
 			if err != nil {
 				p.Logger.Error("Failed to mark task as failed", err)
 			}
 			cancel()
-			continue
 		}
 
-		contact, err := p.Audience.GetContact(ctx, task.ContactUUID)
+		tmpl, err := template.New(task.UUID).Parse(task.HTMLBody)
 		if err != nil {
-			p.Logger.Error("Failed to get contact", err)
-			err = p.Svc.CompleteSendTask(ctx, task.UUID, SendTaskStatusFailed)
-			if err != nil {
-				p.Logger.Error("Failed to mark task as failed", err)
-			}
-			cancel()
+			handleTaskErr("Failed to parse HTML body", err)
 			continue
 		}
 
-		tmpl, err := p.Content.GetTemplate(ctx, campaign.TemplateUUID)
+		err = json.Unmarshal([]byte(task.ContactParams), &contactParams)
 		if err != nil {
-			p.Logger.Error("Failed to get template", err)
-			err = p.Svc.CompleteSendTask(ctx, task.UUID, SendTaskStatusFailed)
-			if err != nil {
-				p.Logger.Error("Failed to mark task as failed", err)
-			}
-			cancel()
+			handleTaskErr("Failed to parse contact params", err)
 			continue
 		}
 
-		_, err = p.Mailer.SendPlain(
-			campaign.FromEmail,
-			contact.Email,
-			tmpl.Subject,
-			tmpl.HTMLBody,
+		params := map[string]interface{}{
+			"Contact": contactParams,
+		}
+
+		err = tmpl.Execute(&emailBody, params)
+		if err != nil {
+			handleTaskErr("Failed to execute email template", err)
+			continue
+		}
+
+		_, err = p.Mailer.SendHTML(
+			task.FromEmail,
+			task.ToEmail,
+			task.Subject,
+			emailBody.String(),
 		)
 		if err != nil {
-			p.Logger.Error("Failed to send plain email", err)
-			err = p.Svc.CompleteSendTask(ctx, task.UUID, SendTaskStatusFailed)
-			if err != nil {
-				p.Logger.Error("Failed to mark task as failed", err)
-			}
-			cancel()
+			handleTaskErr("Failed to send email", err)
 			continue
 		}
 

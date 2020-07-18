@@ -32,9 +32,13 @@ type SendTask struct {
 	CreatedAt time.Time `gorm:"not null"`
 	UpdatedAt time.Time `gorm:"not null"`
 
-	CampaignUUID string `gorm:"not null"`
-	ContactUUID  string `gorm:"not null"`
-	Status       string `gorm:"not null"`
+	FromName      string `gorm:"not null"`
+	FromEmail     string `gorm:"not null"`
+	Subject       string `gorm:"not null"`
+	HTMLBody      string `gorm:"not null"`
+	ToEmail       string `gorm:"not null"`
+	ContactParams string `gorm:"not null"`
+	Status        string `gorm:"not null"`
 }
 
 func (SendTask) TableName() string {

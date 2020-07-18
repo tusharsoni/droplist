@@ -3,6 +3,7 @@ package campaign
 import (
 	"context"
 	"shoot/pkg/audience"
+	"shoot/pkg/content"
 
 	"github.com/google/uuid"
 	"github.com/tusharsoni/copper/cerror"
@@ -30,6 +31,7 @@ type SvcParams struct {
 	Repo     Repo
 	Queue    Queue
 	Audience audience.Svc
+	Content  content.Svc
 }
 
 func NewSvc(p SvcParams) Svc {
@@ -37,6 +39,7 @@ func NewSvc(p SvcParams) Svc {
 		repo:     p.Repo,
 		queue:    p.Queue,
 		audience: p.Audience,
+		content:  p.Content,
 	}
 }
 
@@ -44,6 +47,7 @@ type svc struct {
 	repo     Repo
 	queue    Queue
 	audience audience.Svc
+	content  content.Svc
 }
 
 func (s *svc) GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, error) {
@@ -91,12 +95,23 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 		})
 	}
 
+	tmpl, err := s.content.GetTemplate(ctx, campaign.TemplateUUID)
+	if err != nil {
+		return cerror.New(err, "failed to get template", map[string]interface{}{
+			"templateUUID": campaign.TemplateUUID,
+		})
+	}
+
 	for _, contact := range contacts {
 		err = s.queue.AddSendTask(ctx, &SendTask{
-			UUID:         uuid.New().String(),
-			CampaignUUID: campaign.UUID,
-			ContactUUID:  contact.UUID,
-			Status:       SendTaskStatusQueued,
+			UUID:          uuid.New().String(),
+			FromName:      campaign.FromName,
+			FromEmail:     campaign.FromEmail,
+			Subject:       tmpl.Subject,
+			HTMLBody:      tmpl.HTMLBody,
+			ToEmail:       contact.Email,
+			ContactParams: contact.Params,
+			Status:        SendTaskStatusQueued,
 		})
 		if err != nil {
 			return cerror.New(err, "failed to queue send tasks", map[string]interface{}{
