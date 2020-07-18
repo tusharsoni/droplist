@@ -3,6 +3,8 @@ package audience
 import (
 	"net/http"
 
+	"github.com/tusharsoni/copper/cauth"
+
 	"github.com/gorilla/mux"
 
 	"github.com/tusharsoni/copper/chttp"
@@ -38,11 +40,12 @@ func NewRouter(p RouterParams) *Router {
 	}
 }
 
-func NewCreateListRoute(ro *Router) chttp.RouteResult {
+func NewCreateListRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:    "/api/audience/lists",
-		Methods: []string{http.MethodPost},
-		Handler: http.HandlerFunc(ro.HandleCreateList),
+		Path:            "/api/audience/lists",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodPost},
+		Handler:         http.HandlerFunc(ro.HandleCreateList),
 	}}
 }
 
@@ -56,8 +59,7 @@ func (ro *Router) HandleCreateList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	// todo
-	userUUID := "test-user-1"
+	userUUID := cauth.GetCurrentUserUUID(ctx)
 
 	list, err := ro.svc.CreateList(ctx, body.Name, userUUID)
 	if err != nil {
@@ -69,11 +71,12 @@ func (ro *Router) HandleCreateList(w http.ResponseWriter, r *http.Request) {
 	ro.resp.OK(w, list)
 }
 
-func NewCreateContactsRoute(ro *Router) chttp.RouteResult {
+func NewCreateContactsRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:    "/api/audience/contacts",
-		Methods: []string{http.MethodPost},
-		Handler: http.HandlerFunc(ro.HandleCreateContacts),
+		Path:            "/api/audience/contacts",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodPost},
+		Handler:         http.HandlerFunc(ro.HandleCreateContacts),
 	}}
 }
 
@@ -87,8 +90,7 @@ func (ro *Router) HandleCreateContacts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	// todo
-	userUUID := "test-user-1"
+	userUUID := cauth.GetCurrentUserUUID(ctx)
 
 	results, err := ro.svc.CreateContacts(ctx, userUUID, body.Contacts)
 	if err != nil {
@@ -100,11 +102,36 @@ func (ro *Router) HandleCreateContacts(w http.ResponseWriter, r *http.Request) {
 	ro.resp.OK(w, results)
 }
 
-func NewAddContactsToListRoute(ro *Router) chttp.RouteResult {
+func NewListContactsRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:    "/api/audience/lists/{uuid}/contacts",
-		Methods: []string{http.MethodPost},
-		Handler: http.HandlerFunc(ro.HandleAddContactsToList),
+		Path:            "/api/audience/contacts",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodGet},
+		Handler:         http.HandlerFunc(ro.HandleListContacts),
+	}}
+}
+
+func (ro *Router) HandleListContacts(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+	userUUID := cauth.GetCurrentUserUUID(ctx)
+
+	contacts, err := ro.svc.ListUserContacts(ctx, userUUID)
+	if err != nil {
+		ro.logger.Error("Failed to list user contacts", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, contacts)
+}
+
+func NewAddContactsToListRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/audience/lists/{uuid}/contacts",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodPost},
+		Handler:         http.HandlerFunc(ro.HandleAddContactsToList),
 	}}
 }
 

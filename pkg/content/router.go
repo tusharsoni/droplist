@@ -3,6 +3,8 @@ package content
 import (
 	"net/http"
 
+	"github.com/tusharsoni/copper/cauth"
+
 	"github.com/tusharsoni/copper/chttp"
 	"github.com/tusharsoni/copper/clogger"
 	"go.uber.org/fx"
@@ -36,11 +38,12 @@ func NewRouter(p RouterParams) *Router {
 	}
 }
 
-func NewCreateTemplateRoute(ro *Router) chttp.RouteResult {
+func NewCreateTemplateRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:    "/api/content/templates",
-		Methods: []string{http.MethodPost},
-		Handler: http.HandlerFunc(ro.HandleCreateTemplate),
+		Path:            "/api/content/templates",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodPost},
+		Handler:         http.HandlerFunc(ro.HandleCreateTemplate),
 	}}
 }
 
@@ -52,8 +55,7 @@ func (ro *Router) HandleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	// todo
-	userUUID := "test-user-1"
+	userUUID := cauth.GetCurrentUserUUID(ctx)
 
 	tmpl, err := ro.svc.CreateTemplate(ctx, userUUID, body)
 	if err != nil {

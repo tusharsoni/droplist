@@ -27,6 +27,7 @@ type AddContactToListResult struct {
 type Svc interface {
 	CreateList(ctx context.Context, name, userUUID string) (*List, error)
 	CreateContacts(ctx context.Context, userUUID string, p []CreateContactParams) ([]CreateContactResult, error)
+	ListUserContacts(ctx context.Context, userUUID string) ([]Contact, error)
 	AddContactsToList(ctx context.Context, listUUID string, contactUUIDs []string) ([]AddContactToListResult, error)
 	ListContacts(ctx context.Context, listUUID string) ([]Contact, error)
 	GetContact(ctx context.Context, contactUUID string) (*Contact, error)
@@ -96,6 +97,10 @@ func (s *svc) CreateContacts(ctx context.Context, userUUID string, createParams 
 	}
 
 	return results, nil
+}
+
+func (s *svc) ListUserContacts(ctx context.Context, userUUID string) ([]Contact, error) {
+	return s.repo.FindContactsByCreatedBy(ctx, userUUID)
 }
 
 func (s *svc) AddContactsToList(ctx context.Context, listUUID string, contactUUIDs []string) ([]AddContactToListResult, error) {

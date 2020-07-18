@@ -3,6 +3,8 @@ package campaign
 import (
 	"net/http"
 
+	"github.com/tusharsoni/copper/cauth"
+
 	"github.com/gorilla/mux"
 
 	"github.com/tusharsoni/copper/chttp"
@@ -38,11 +40,12 @@ func NewRouter(p RouterParams) *Router {
 	}
 }
 
-func NewCreateDraftCampaignRoute(ro *Router) chttp.RouteResult {
+func NewCreateDraftCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:    "/api/campaigns",
-		Methods: []string{http.MethodPost},
-		Handler: http.HandlerFunc(ro.HandleCreateDraftCampaign),
+		Path:            "/api/campaigns",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodPost},
+		Handler:         http.HandlerFunc(ro.HandleCreateDraftCampaign),
 	}}
 }
 
@@ -63,11 +66,12 @@ func (ro *Router) HandleCreateDraftCampaign(w http.ResponseWriter, r *http.Reque
 	ro.resp.OK(w, campaign)
 }
 
-func NewPublishCampaignRoute(ro *Router) chttp.RouteResult {
+func NewPublishCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:    "/api/campaigns/{uuid}/publish",
-		Methods: []string{http.MethodPost},
-		Handler: http.HandlerFunc(ro.HandlePublishCampaign),
+		Path:            "/api/campaigns/{uuid}/publish",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodPost},
+		Handler:         http.HandlerFunc(ro.HandlePublishCampaign),
 	}}
 }
 
