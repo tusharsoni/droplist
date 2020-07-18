@@ -3,6 +3,7 @@ package campaign
 import (
 	"context"
 	"shoot/pkg/audience"
+	"shoot/pkg/content"
 	"time"
 
 	"github.com/tusharsoni/copper/clogger"
@@ -15,6 +16,7 @@ type MailerParams struct {
 
 	Svc       Svc
 	Queue     Queue
+	Content   content.Svc
 	Audience  audience.Svc
 	Mailer    cmailer.Mailer
 	Logger    clogger.Logger
@@ -79,11 +81,22 @@ func RunMailer(p MailerParams) {
 			continue
 		}
 
+		tmpl, err := p.Content.GetTemplate(ctx, campaign.TemplateUUID)
+		if err != nil {
+			p.Logger.Error("Failed to get template", err)
+			err = p.Svc.CompleteSendTask(ctx, task.UUID, SendTaskStatusFailed)
+			if err != nil {
+				p.Logger.Error("Failed to mark task as failed", err)
+			}
+			cancel()
+			continue
+		}
+
 		_, err = p.Mailer.SendPlain(
 			campaign.FromEmail,
 			contact.Email,
-			"Test Subject",
-			"Test Body",
+			tmpl.Subject,
+			tmpl.HTMLBody,
 		)
 		if err != nil {
 			p.Logger.Error("Failed to send plain email", err)

@@ -10,10 +10,11 @@ import (
 )
 
 type CreateCampaignParams struct {
-	ListUUID  string `json:"list_uuid" valid:"required,uuid"`
-	Nickname  string `json:"nickname" valid:"required"`
-	FromName  string `json:"from_name" valid:"required"`
-	FromEmail string `json:"from_email" valid:"required,email"`
+	ListUUID     string `json:"list_uuid" valid:"required,uuid"`
+	TemplateUUID string `json:"template_uuid" valid:"required,uuid"`
+	Nickname     string `json:"nickname" valid:"required"`
+	FromName     string `json:"from_name" valid:"required"`
+	FromEmail    string `json:"from_email" valid:"required,email"`
 }
 
 type Svc interface {
@@ -51,12 +52,13 @@ func (s *svc) GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, 
 
 func (s *svc) CreateDraftCampaign(ctx context.Context, p CreateCampaignParams) (*Campaign, error) {
 	campaign := &Campaign{
-		UUID:      uuid.New().String(),
-		ListUUID:  p.ListUUID,
-		Nickname:  p.Nickname,
-		FromName:  p.FromName,
-		FromEmail: p.FromEmail,
-		State:     StateDraft,
+		UUID:         uuid.New().String(),
+		ListUUID:     p.ListUUID,
+		TemplateUUID: p.TemplateUUID,
+		Nickname:     p.Nickname,
+		FromName:     p.FromName,
+		FromEmail:    p.FromEmail,
+		State:        StateDraft,
 	}
 
 	err := s.repo.AddCampaign(ctx, campaign)
