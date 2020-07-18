@@ -21,7 +21,7 @@ type Campaign struct {
 
 	ListUUID     string `gorm:"not null"`
 	TemplateUUID string `gorm:"not null"`
-	Nickname     string `gorm:"not null"`
+	Name         string `gorm:"not null"`
 	FromName     string `gorm:"not null"`
 	FromEmail    string `gorm:"not null"`
 	State        string `gorm:"not null"`

@@ -13,7 +13,7 @@ import (
 type CreateCampaignParams struct {
 	ListUUID     string `json:"list_uuid" valid:"required,uuid"`
 	TemplateUUID string `json:"template_uuid" valid:"required,uuid"`
-	Nickname     string `json:"nickname" valid:"required"`
+	Name         string `json:"name" valid:"required"`
 	FromName     string `json:"from_name" valid:"required"`
 	FromEmail    string `json:"from_email" valid:"required,email"`
 }
@@ -59,7 +59,7 @@ func (s *svc) CreateDraftCampaign(ctx context.Context, p CreateCampaignParams) (
 		UUID:         uuid.New().String(),
 		ListUUID:     p.ListUUID,
 		TemplateUUID: p.TemplateUUID,
-		Nickname:     p.Nickname,
+		Name:         p.Name,
 		FromName:     p.FromName,
 		FromEmail:    p.FromEmail,
 		State:        StateDraft,
