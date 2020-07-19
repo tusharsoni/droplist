@@ -6,7 +6,7 @@ import (
 )
 
 func RunMigrations(db *gorm.DB) error {
-	err := db.AutoMigrate(List{}, Contact{}, ContactListJoin{}).Error
+	err := db.AutoMigrate(Contact{}, Segment{}).Error
 	if err != nil {
 		return cerror.New(err, "failed to auto migrate audience models", nil)
 	}

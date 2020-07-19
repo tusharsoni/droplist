@@ -6,13 +6,10 @@ const (
 	ContactStatusSubscribed = "SUBSCRIBED"
 )
 
-type List struct {
+type Segment struct {
 	UUID      string    `gorm:"primary_key"`
 	CreatedAt time.Time `gorm:"not null"`
 	UpdatedAt time.Time `gorm:"not null"`
-
-	Name      string `gorm:"not null"`
-	CreatedBy string `gorm:"not null"`
 }
 
 type Contact struct {
@@ -24,10 +21,4 @@ type Contact struct {
 	Email     string `gorm:"not null"`
 	Status    string `gorm:"not null"`
 	Params    string `gorm:"not null"`
-}
-
-type ContactListJoin struct {
-	UUID        string `gorm:"primary_key"`
-	ListUUID    string `gorm:"not null"`
-	ContactUUID string `gorm:"not null"`
 }

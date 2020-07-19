@@ -7,8 +7,6 @@ var Fx = fx.Provide(
 	NewSQLRepo,
 
 	NewRouter,
-	NewCreateListRoute,
 	NewListContactsRoute,
 	NewCreateContactsRoute,
-	NewAddContactsToListRoute,
 )

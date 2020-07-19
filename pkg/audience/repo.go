@@ -9,12 +9,10 @@ import (
 )
 
 type Repo interface {
-	AddList(ctx context.Context, list *List) error
 	AddContact(ctx context.Context, contact *Contact) error
-	AddContactListJoin(ctx context.Context, contactListJoin *ContactListJoin) error
-	FindContactsByListUUID(ctx context.Context, listUUID string) ([]Contact, error)
 	GetContactByUUID(ctx context.Context, uuid string) (*Contact, error)
 	FindContactsByCreatedBy(ctx context.Context, createdBy string) ([]Contact, error)
+	AddSegment(ctx context.Context, segment *Segment) error
 }
 
 func NewSQLRepo(db *gorm.DB) Repo {
@@ -27,15 +25,6 @@ type sqlRepo struct {
 	db *gorm.DB
 }
 
-func (r *sqlRepo) AddList(ctx context.Context, list *List) error {
-	err := csql.GetConn(ctx, r.db).Save(list).Error
-	if err != nil {
-		return cerror.New(err, "failed to add list", nil)
-	}
-
-	return nil
-}
-
 func (r *sqlRepo) AddContact(ctx context.Context, contact *Contact) error {
 	err := csql.GetConn(ctx, r.db).Save(contact).Error
 	if err != nil {
@@ -43,33 +32,6 @@ func (r *sqlRepo) AddContact(ctx context.Context, contact *Contact) error {
 	}
 
 	return nil
-}
-
-func (r *sqlRepo) AddContactListJoin(ctx context.Context, contactListJoin *ContactListJoin) error {
-	err := csql.GetConn(ctx, r.db).Save(contactListJoin).Error
-	if err != nil {
-		return cerror.New(err, "failed to add contact list join", nil)
-	}
-
-	return nil
-}
-
-func (r *sqlRepo) FindContactsByListUUID(ctx context.Context, listUUID string) ([]Contact, error) {
-	var contacts []Contact
-
-	err := csql.GetConn(ctx, r.db).
-		Model(&Contact{}).
-		Joins("JOIN contact_list_joins ON contacts.uuid=contact_list_joins.contact_uuid").
-		Where(&ContactListJoin{ListUUID: listUUID}).
-		Find(&contacts).
-		Error
-	if err != nil {
-		return nil, cerror.New(err, "failed to query contacts", map[string]interface{}{
-			"listUUID": listUUID,
-		})
-	}
-
-	return contacts, nil
 }
 
 func (r *sqlRepo) GetContactByUUID(ctx context.Context, uuid string) (*Contact, error) {
@@ -102,4 +64,13 @@ func (r *sqlRepo) FindContactsByCreatedBy(ctx context.Context, createdBy string)
 	}
 
 	return contacts, nil
+}
+
+func (r *sqlRepo) AddSegment(ctx context.Context, segment *Segment) error {
+	err := csql.GetConn(ctx, r.db).Save(segment).Error
+	if err != nil {
+		return cerror.New(err, "failed to add segment", nil)
+	}
+
+	return nil
 }

@@ -19,18 +19,15 @@ type CreateContactResult struct {
 	Success bool   `json:"success"`
 }
 
-type AddContactToListResult struct {
-	ContactUUID string `json:"contact_uuid"`
-	Success     bool   `json:"success"`
+type CreateSegmentParams struct {
 }
 
 type Svc interface {
-	CreateList(ctx context.Context, name, userUUID string) (*List, error)
 	CreateContacts(ctx context.Context, userUUID string, p []CreateContactParams) ([]CreateContactResult, error)
 	ListUserContacts(ctx context.Context, userUUID string) ([]Contact, error)
-	AddContactsToList(ctx context.Context, listUUID string, contactUUIDs []string) ([]AddContactToListResult, error)
-	ListContacts(ctx context.Context, listUUID string) ([]Contact, error)
 	GetContact(ctx context.Context, contactUUID string) (*Contact, error)
+	CreateSegment(ctx context.Context, p CreateSegmentParams) (*Segment, error)
+	SegmentedContacts(ctx context.Context, userUUID, segmentUUID string) ([]Contact, error)
 }
 
 type SvcParams struct {
@@ -50,21 +47,6 @@ func NewSvc(p SvcParams) Svc {
 type svc struct {
 	repo   Repo
 	logger clogger.Logger
-}
-
-func (s *svc) CreateList(ctx context.Context, name, userUUID string) (*List, error) {
-	list := &List{
-		UUID:      uuid.New().String(),
-		Name:      name,
-		CreatedBy: userUUID,
-	}
-
-	err := s.repo.AddList(ctx, list)
-	if err != nil {
-		return nil, cerror.New(err, "failed to save list", nil)
-	}
-
-	return list, nil
 }
 
 func (s *svc) CreateContacts(ctx context.Context, userUUID string, createParams []CreateContactParams) ([]CreateContactResult, error) {
@@ -99,42 +81,26 @@ func (s *svc) CreateContacts(ctx context.Context, userUUID string, createParams 
 	return results, nil
 }
 
+func (s *svc) SegmentedContacts(ctx context.Context, userUUID, segmentUUID string) ([]Contact, error) {
+	return s.ListUserContacts(ctx, userUUID)
+}
+
 func (s *svc) ListUserContacts(ctx context.Context, userUUID string) ([]Contact, error) {
 	return s.repo.FindContactsByCreatedBy(ctx, userUUID)
 }
 
-func (s *svc) AddContactsToList(ctx context.Context, listUUID string, contactUUIDs []string) ([]AddContactToListResult, error) {
-	results := make([]AddContactToListResult, len(contactUUIDs))
-
-	for i, contactUUID := range contactUUIDs {
-		err := s.repo.AddContactListJoin(ctx, &ContactListJoin{
-			UUID:        uuid.New().String(),
-			ListUUID:    listUUID,
-			ContactUUID: contactUUID,
-		})
-		if err != nil {
-			s.logger.WithTags(map[string]interface{}{
-				"listUUID":   listUUID,
-				"concatUUID": contactUUID,
-			}).Error("Failed to add contact to list", err)
-			results[i] = AddContactToListResult{
-				ContactUUID: contactUUID,
-				Success:     false,
-			}
-			continue
-		}
-
-		results[i] = AddContactToListResult{
-			ContactUUID: contactUUID,
-			Success:     true,
-		}
+func (s *svc) CreateSegment(ctx context.Context, p CreateSegmentParams) (*Segment, error) {
+	segment := &Segment{
+		UUID: uuid.New().String(),
 	}
 
-	return results, nil
-}
+	err := s.repo.AddSegment(ctx, segment)
+	if err != nil {
+		return nil, cerror.New(err, "failed to save segment", nil)
+	}
 
-func (s *svc) ListContacts(ctx context.Context, listUUID string) ([]Contact, error) {
-	return s.repo.FindContactsByListUUID(ctx, listUUID)
+	return segment, nil
+
 }
 
 func (s *svc) GetContact(ctx context.Context, contactUUID string) (*Contact, error) {

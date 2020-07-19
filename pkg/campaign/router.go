@@ -56,7 +56,10 @@ func (ro *Router) HandleCreateDraftCampaign(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	campaign, err := ro.svc.CreateDraftCampaign(r.Context(), body)
+	ctx := r.Context()
+	userUUID := cauth.GetCurrentUserUUID(ctx)
+
+	campaign, err := ro.svc.CreateDraftCampaign(ctx, userUUID, body)
 	if err != nil {
 		ro.logger.Error("Failed to create draft campaign", err)
 		ro.resp.InternalErr(w)

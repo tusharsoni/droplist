@@ -19,7 +19,8 @@ type Campaign struct {
 	CreatedAt time.Time `gorm:"not null"`
 	UpdatedAt time.Time `gorm:"not null"`
 
-	ListUUID     string `gorm:"not null"`
+	CreatedBy    string `gorm:"not null"`
+	SegmentUUID  string `gorm:"not null"`
 	TemplateUUID string `gorm:"not null"`
 	Name         string `gorm:"not null"`
 	FromName     string `gorm:"not null"`

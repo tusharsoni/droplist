@@ -11,16 +11,16 @@ import (
 )
 
 type CreateCampaignParams struct {
-	ListUUID     string `json:"list_uuid" valid:"required,uuid"`
-	TemplateUUID string `json:"template_uuid" valid:"required,uuid"`
-	Name         string `json:"name" valid:"required"`
-	FromName     string `json:"from_name" valid:"required"`
-	FromEmail    string `json:"from_email" valid:"required,email"`
+	Segment      *audience.CreateSegmentParams `json:"segment" valid:"optional"`
+	TemplateUUID string                        `json:"template_uuid" valid:"required,uuid"`
+	Name         string                        `json:"name" valid:"required"`
+	FromName     string                        `json:"from_name" valid:"required"`
+	FromEmail    string                        `json:"from_email" valid:"required,email"`
 }
 
 type Svc interface {
 	GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, error)
-	CreateDraftCampaign(ctx context.Context, p CreateCampaignParams) (*Campaign, error)
+	CreateDraftCampaign(ctx context.Context, userUUID string, p CreateCampaignParams) (*Campaign, error)
 	PublishCampaign(ctx context.Context, campaignUUID string) error
 	CompleteSendTask(ctx context.Context, taskUUID, status string) error
 }
@@ -54,10 +54,22 @@ func (s *svc) GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, 
 	return s.repo.GetCampaignByUUID(ctx, campaignUUID)
 }
 
-func (s *svc) CreateDraftCampaign(ctx context.Context, p CreateCampaignParams) (*Campaign, error) {
+func (s *svc) CreateDraftCampaign(ctx context.Context, userUUID string, p CreateCampaignParams) (*Campaign, error) {
+	var segmentP audience.CreateSegmentParams
+
+	if p.Segment != nil {
+		segmentP = *p.Segment
+	}
+
+	segment, err := s.audience.CreateSegment(ctx, segmentP)
+	if err != nil {
+		return nil, cerror.New(err, "failed to create segment", nil)
+	}
+
 	campaign := &Campaign{
 		UUID:         uuid.New().String(),
-		ListUUID:     p.ListUUID,
+		CreatedBy:    userUUID,
+		SegmentUUID:  segment.UUID,
 		TemplateUUID: p.TemplateUUID,
 		Name:         p.Name,
 		FromName:     p.FromName,
@@ -65,7 +77,7 @@ func (s *svc) CreateDraftCampaign(ctx context.Context, p CreateCampaignParams) (
 		State:        StateDraft,
 	}
 
-	err := s.repo.AddCampaign(ctx, campaign)
+	err = s.repo.AddCampaign(ctx, campaign)
 	if err != nil {
 		return nil, cerror.New(err, "failed to save campaign", nil)
 	}
@@ -88,10 +100,11 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 		})
 	}
 
-	contacts, err := s.audience.ListContacts(ctx, campaign.ListUUID)
+	contacts, err := s.audience.SegmentedContacts(ctx, campaign.CreatedBy, campaign.SegmentUUID)
 	if err != nil {
-		return cerror.New(err, "failed to get list contacts", map[string]interface{}{
-			"listUUID": campaign.ListUUID,
+		return cerror.New(err, "failed to get segmented contacts", map[string]interface{}{
+			"userUUID":    campaign.CreatedBy,
+			"segmentUUID": campaign.SegmentUUID,
 		})
 	}
 
