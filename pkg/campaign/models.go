@@ -15,7 +15,8 @@ const (
 )
 
 const (
-	EventOpen = "OPEN"
+	EventOpen  = "OPEN"
+	EventClick = "CLICK"
 )
 
 type Campaign struct {

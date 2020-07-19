@@ -127,6 +127,33 @@ func (ro *Router) HandleTestCampaign(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func NewClickEventRoute(ro *Router) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:    "/api/campaigns/{campaignUUID}/events/{contactUUID}/click",
+		Methods: []string{http.MethodGet},
+		Handler: http.HandlerFunc(ro.HandleClickEvent),
+	}}
+}
+
+func (ro *Router) HandleClickEvent(w http.ResponseWriter, r *http.Request) {
+	var (
+		campaignUUID = mux.Vars(r)["campaignUUID"]
+		contactUUID  = mux.Vars(r)["contactUUID"]
+		url          = r.URL.Query().Get("url")
+	)
+
+	err := ro.svc.LogEvent(r.Context(), campaignUUID, contactUUID, EventOpen)
+	if err != nil {
+		ro.logger.WithTags(map[string]interface{}{
+			"campaignUUID": campaignUUID,
+			"contactUUID":  contactUUID,
+			"event":        EventClick,
+		}).Error("Failed to log event", err)
+	}
+
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
 func NewOpenEventImageRoute(ro *Router) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
 		Path:    "/api/campaigns/{campaignUUID}/events/{contactUUID}/open.png",
