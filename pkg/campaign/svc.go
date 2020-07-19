@@ -130,6 +130,8 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 
 		params := map[string]interface{}{
 			"Contact":        contactParams,
+			"Subject":        tmpl.Subject,
+			"PreviewText":    tmpl.PreviewText,
 			"UnsubscribeURL": s.audience.UnsubscribeURL(ctx, contact.UUID),
 		}
 

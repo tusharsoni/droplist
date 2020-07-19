@@ -9,9 +9,10 @@ import (
 )
 
 type CreateTemplateParams struct {
-	Name     string `json:"name" valid:"required"`
-	Subject  string `json:"subject" valid:"required"`
-	HTMLBody string `json:"html_body" valid:"required"`
+	Name        string  `json:"name" valid:"required"`
+	Subject     string  `json:"subject" valid:"required"`
+	PreviewText *string `json:"preview_text" valid:"optional"`
+	HTMLBody    string  `json:"html_body" valid:"required"`
 }
 
 type Svc interface {
@@ -37,11 +38,12 @@ type svc struct {
 
 func (s *svc) CreateTemplate(ctx context.Context, userUUID string, p CreateTemplateParams) (*Template, error) {
 	tmpl := &Template{
-		UUID:      uuid.New().String(),
-		CreatedBy: userUUID,
-		Name:      p.Name,
-		Subject:   p.Subject,
-		HTMLBody:  p.HTMLBody,
+		UUID:        uuid.New().String(),
+		CreatedBy:   userUUID,
+		Name:        p.Name,
+		Subject:     p.Subject,
+		PreviewText: p.PreviewText,
+		HTMLBody:    p.HTMLBody,
 	}
 
 	err := s.repo.AddTemplate(ctx, tmpl)
