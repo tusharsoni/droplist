@@ -14,6 +14,8 @@ type Repo interface {
 
 	AddSendTask(ctx context.Context, sendTask *SendTask) error
 	GetSendTaskByUUID(ctx context.Context, uuid string) (*SendTask, error)
+
+	AddEventLog(ctx context.Context, eventLog *EventLog) error
 }
 
 func NewSQLRepo(db *gorm.DB) Repo {
@@ -74,4 +76,13 @@ func (r *sqlRepo) GetSendTaskByUUID(ctx context.Context, uuid string) (*SendTask
 	}
 
 	return &sendTask, nil
+}
+
+func (r *sqlRepo) AddEventLog(ctx context.Context, eventLog *EventLog) error {
+	err := csql.GetConn(ctx, r.db).Save(eventLog).Error
+	if err != nil {
+		return cerror.New(err, "failed to add event log", nil)
+	}
+
+	return nil
 }

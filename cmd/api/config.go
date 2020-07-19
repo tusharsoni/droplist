@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"shoot/pkg/audience"
+	"shoot/pkg/campaign"
 
 	"github.com/tusharsoni/copper/cmailer"
 
@@ -17,6 +18,7 @@ type Config struct {
 	HTTP      chttp.Config
 	SQL       csql.Config
 	Audience  audience.Config
+	Campaign  campaign.Config
 	AWSMailer cmailer.AWSConfig
 }
 
@@ -33,7 +35,10 @@ func NewConfig() Config {
 			User: "postgres",
 		},
 		Audience: audience.Config{
-			BaseURL: "https://shoot.telab.co/",
+			BaseURL: os.Getenv("SHOOT_BASE_URL"),
+		},
+		Campaign: campaign.Config{
+			BaseURL: os.Getenv("SHOOT_BASE_URL"),
 		},
 		AWSMailer: cmailer.AWSConfig{
 			Region:          "us-east-1",

@@ -3,6 +3,7 @@ package campaign
 import (
 	"context"
 	"encoding/json"
+	"path"
 	"shoot/pkg/audience"
 	"shoot/pkg/content"
 
@@ -25,6 +26,7 @@ type Svc interface {
 	PublishCampaign(ctx context.Context, campaignUUID string) error
 	CompleteSendTask(ctx context.Context, taskUUID, status string) error
 	TestCampaign(ctx context.Context, campaignUUID string, recipients []string) error
+	LogEvent(ctx context.Context, campaignUUID, contactUUID, event string) error
 }
 
 type SvcParams struct {
@@ -34,6 +36,7 @@ type SvcParams struct {
 	Queue    Queue
 	Audience audience.Svc
 	Content  content.Svc
+	Config   Config
 }
 
 func NewSvc(p SvcParams) Svc {
@@ -42,6 +45,7 @@ func NewSvc(p SvcParams) Svc {
 		queue:    p.Queue,
 		audience: p.Audience,
 		content:  p.Content,
+		config:   p.Config,
 	}
 }
 
@@ -50,6 +54,7 @@ type svc struct {
 	queue    Queue
 	audience audience.Svc
 	content  content.Svc
+	config   Config
 }
 
 func (s *svc) GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, error) {
@@ -118,10 +123,11 @@ func (s *svc) TestCampaign(ctx context.Context, campaignUUID string, recipients 
 		}
 
 		params := map[string]interface{}{
-			"Contact":        contactParams,
-			"Subject":        tmpl.Subject,
-			"PreviewText":    tmpl.PreviewText,
-			"UnsubscribeURL": s.audience.UnsubscribeURL(ctx, contact.UUID),
+			"Contact":           contactParams,
+			"Subject":           tmpl.Subject,
+			"PreviewText":       tmpl.PreviewText,
+			"UnsubscribeURL":    s.audience.UnsubscribeURL(ctx, contact.UUID),
+			"OpenEventImageURL": s.GetOpenEventImageURL(campaign.UUID, contact.UUID),
 		}
 
 		paramsJ, err := json.Marshal(params)
@@ -195,10 +201,11 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 		}
 
 		params := map[string]interface{}{
-			"Contact":        contactParams,
-			"Subject":        tmpl.Subject,
-			"PreviewText":    tmpl.PreviewText,
-			"UnsubscribeURL": s.audience.UnsubscribeURL(ctx, contact.UUID),
+			"Contact":           contactParams,
+			"Subject":           tmpl.Subject,
+			"PreviewText":       tmpl.PreviewText,
+			"UnsubscribeURL":    s.audience.UnsubscribeURL(ctx, contact.UUID),
+			"OpenEventImageURL": s.GetOpenEventImageURL(campaign.UUID, contact.UUID),
 		}
 
 		paramsJ, err := json.Marshal(params)
@@ -264,4 +271,17 @@ func (s *svc) CompleteSendTask(ctx context.Context, taskUUID, status string) err
 	}
 
 	return nil
+}
+
+func (s *svc) LogEvent(ctx context.Context, campaignUUID, contactUUID, event string) error {
+	return s.repo.AddEventLog(ctx, &EventLog{
+		UUID:         uuid.New().String(),
+		CampaignUUID: campaignUUID,
+		ContactUUID:  contactUUID,
+		Event:        event,
+	})
+}
+
+func (s *svc) GetOpenEventImageURL(campaignUUID, contactUUID string) string {
+	return path.Join(s.config.BaseURL, "/api/campaigns/", campaignUUID, "/events/", contactUUID, "/open.png")
 }

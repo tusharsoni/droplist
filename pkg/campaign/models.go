@@ -14,6 +14,10 @@ const (
 	SendTaskStatusFailed  = "FAILED"
 )
 
+const (
+	EventOpen = "OPEN"
+)
+
 type Campaign struct {
 	UUID      string    `gorm:"primary_key"`
 	CreatedAt time.Time `gorm:"not null"`
@@ -44,4 +48,18 @@ type SendTask struct {
 
 func (SendTask) TableName() string {
 	return "campaign_send_queue"
+}
+
+type EventLog struct {
+	UUID      string    `gorm:"primary_key"`
+	CreatedAt time.Time `gorm:"not null"`
+	UpdatedAt time.Time `gorm:"not null"`
+
+	CampaignUUID string `gorm:"not null"`
+	ContactUUID  string `gorm:"not null"`
+	Event        string `gorm:"not null"`
+}
+
+func (EventLog) TableName() string {
+	return "campaign_event_logs"
 }

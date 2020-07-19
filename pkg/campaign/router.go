@@ -1,6 +1,9 @@
 package campaign
 
 import (
+	"image"
+	"image/color"
+	"image/png"
 	"net/http"
 
 	"github.com/tusharsoni/copper/cauth"
@@ -122,4 +125,52 @@ func (ro *Router) HandleTestCampaign(w http.ResponseWriter, r *http.Request) {
 	ro.resp.OK(w, map[string]bool{
 		"success": true,
 	})
+}
+
+func NewOpenEventImageRoute(ro *Router) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:    "/api/campaigns/{campaignUUID}/events/{contactUUID}/open.png",
+		Methods: []string{http.MethodGet},
+		Handler: http.HandlerFunc(ro.HandleOpenEventImage),
+	}}
+}
+
+func (ro *Router) HandleOpenEventImage(w http.ResponseWriter, r *http.Request) {
+	const (
+		width  = 16
+		height = 16
+	)
+
+	var (
+		campaignUUID = mux.Vars(r)["campaignUUID"]
+		contactUUID  = mux.Vars(r)["contactUUID"]
+	)
+
+	err := ro.svc.LogEvent(r.Context(), campaignUUID, contactUUID, EventOpen)
+	if err != nil {
+		ro.logger.WithTags(map[string]interface{}{
+			"campaignUUID": campaignUUID,
+			"contactUUID":  contactUUID,
+			"event":        EventOpen,
+		}).Error("Failed to log event", err)
+	}
+
+	img := image.NewNRGBA(image.Rect(0, 0, width, height))
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			img.Set(x, y, color.NRGBA{
+				R: 255,
+				G: 255,
+				B: 255,
+				A: 255,
+			})
+		}
+	}
+
+	err = png.Encode(w, img)
+	if err != nil {
+		ro.logger.Error("Failed to create open event image", err)
+		ro.resp.InternalErr(w)
+		return
+	}
 }
