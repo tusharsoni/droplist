@@ -2,6 +2,7 @@ package audience
 
 import (
 	"context"
+	"path"
 
 	"github.com/google/uuid"
 	"github.com/tusharsoni/copper/cerror"
@@ -28,24 +29,29 @@ type Svc interface {
 	GetContact(ctx context.Context, contactUUID string) (*Contact, error)
 	CreateSegment(ctx context.Context, p CreateSegmentParams) (*Segment, error)
 	SegmentedContacts(ctx context.Context, userUUID, segmentUUID string) ([]Contact, error)
+	UnsubscribeContact(ctx context.Context, uuid string) error
+	UnsubscribeURL(ctx context.Context, uuid string) string
 }
 
 type SvcParams struct {
 	fx.In
 
 	Repo   Repo
+	Config Config
 	Logger clogger.Logger
 }
 
 func NewSvc(p SvcParams) Svc {
 	return &svc{
 		repo:   p.Repo,
+		config: p.Config,
 		logger: p.Logger,
 	}
 }
 
 type svc struct {
 	repo   Repo
+	config Config
 	logger clogger.Logger
 }
 
@@ -105,4 +111,28 @@ func (s *svc) CreateSegment(ctx context.Context, p CreateSegmentParams) (*Segmen
 
 func (s *svc) GetContact(ctx context.Context, contactUUID string) (*Contact, error) {
 	return s.repo.GetContactByUUID(ctx, contactUUID)
+}
+
+func (s *svc) UnsubscribeContact(ctx context.Context, uuid string) error {
+	contact, err := s.GetContact(ctx, uuid)
+	if err != nil {
+		return cerror.New(err, "failed to get contact", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	contact.Status = ContactStatusUnsubscribed
+
+	err = s.repo.AddContact(ctx, contact)
+	if err != nil {
+		return cerror.New(err, "failed to save contact status", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	return nil
+}
+
+func (s *svc) UnsubscribeURL(ctx context.Context, uuid string) string {
+	return path.Join(s.config.BaseURL, "/api/audience/contacts", uuid, "unsubscribe")
 }

@@ -80,8 +80,8 @@ func RunMailer(ctx context.Context, p MailerParams) {
 
 func runSendTask(ctx context.Context, mailer cmailer.Mailer, task *SendTask) error {
 	var (
-		contactParams = make(map[string]interface{})
-		emailBody     strings.Builder
+		params    = make(map[string]interface{})
+		emailBody strings.Builder
 	)
 
 	tmpl, err := template.New(task.UUID).Parse(task.HTMLBody)
@@ -89,13 +89,9 @@ func runSendTask(ctx context.Context, mailer cmailer.Mailer, task *SendTask) err
 		return cerror.New(err, "failed to parse html body", nil)
 	}
 
-	err = json.Unmarshal([]byte(task.ContactParams), &contactParams)
+	err = json.Unmarshal([]byte(task.Params), &params)
 	if err != nil {
-		return cerror.New(err, "failed to parse contact params", nil)
-	}
-
-	params := map[string]interface{}{
-		"Contact": contactParams,
+		return cerror.New(err, "failed to parse params", nil)
 	}
 
 	err = tmpl.Execute(&emailBody, params)

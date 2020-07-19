@@ -2,6 +2,7 @@ package campaign
 
 import (
 	"context"
+	"encoding/json"
 	"shoot/pkg/audience"
 	"shoot/pkg/content"
 
@@ -116,15 +117,39 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 	}
 
 	for _, contact := range contacts {
+		if contact.Status != audience.ContactStatusSubscribed {
+			continue
+		}
+
+		contactParams, err := contact.ParamsJSON()
+		if err != nil {
+			return cerror.New(err, "failed to get contact params json", map[string]interface{}{
+				"contactUUID": contact.UUID,
+			})
+		}
+
+		params := map[string]interface{}{
+			"Contact":        contactParams,
+			"UnsubscribeURL": s.audience.UnsubscribeURL(ctx, contact.UUID),
+		}
+
+		paramsJ, err := json.Marshal(params)
+		if err != nil {
+			return cerror.New(err, "failed to marshal params as json", map[string]interface{}{
+				"campaignUUID": campaign.UUID,
+				"contactUUID":  contact.UUID,
+			})
+		}
+
 		err = s.queue.AddSendTask(ctx, &SendTask{
-			UUID:          uuid.New().String(),
-			FromName:      campaign.FromName,
-			FromEmail:     campaign.FromEmail,
-			Subject:       tmpl.Subject,
-			HTMLBody:      tmpl.HTMLBody,
-			ToEmail:       contact.Email,
-			ContactParams: contact.Params,
-			Status:        SendTaskStatusQueued,
+			UUID:      uuid.New().String(),
+			FromName:  campaign.FromName,
+			FromEmail: campaign.FromEmail,
+			Subject:   tmpl.Subject,
+			HTMLBody:  tmpl.HTMLBody,
+			ToEmail:   contact.Email,
+			Params:    string(paramsJ),
+			Status:    SendTaskStatusQueued,
 		})
 		if err != nil {
 			return cerror.New(err, "failed to queue send tasks", map[string]interface{}{

@@ -9,4 +9,5 @@ var Fx = fx.Provide(
 	NewRouter,
 	NewListContactsRoute,
 	NewCreateContactsRoute,
+	NewUnsubscribeContactRoute,
 )

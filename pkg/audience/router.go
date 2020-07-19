@@ -3,6 +3,8 @@ package audience
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"github.com/tusharsoni/copper/cauth"
 
 	"github.com/tusharsoni/copper/chttp"
@@ -79,7 +81,6 @@ func NewListContactsRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 }
 
 func (ro *Router) HandleListContacts(w http.ResponseWriter, r *http.Request) {
-
 	ctx := r.Context()
 	userUUID := cauth.GetCurrentUserUUID(ctx)
 
@@ -91,4 +92,28 @@ func (ro *Router) HandleListContacts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ro.resp.OK(w, contacts)
+}
+
+func NewUnsubscribeContactRoute(ro *Router) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:    "/api/audience/contacts/{uuid}/unsubscribe",
+		Methods: []string{http.MethodGet},
+		Handler: http.HandlerFunc(ro.HandleUnsubscribeContact),
+	}}
+}
+
+func (ro *Router) HandleUnsubscribeContact(w http.ResponseWriter, r *http.Request) {
+	var contactUUID = mux.Vars(r)["uuid"]
+
+	err := ro.svc.UnsubscribeContact(r.Context(), contactUUID)
+	if err != nil {
+		ro.logger.Error("Failed to unsubscribe contact", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	_, err = w.Write([]byte("You have been unsubscribed from this mailing list."))
+	if err != nil {
+		ro.logger.Error("Failed to write response to body", err)
+	}
 }

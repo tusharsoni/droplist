@@ -1,6 +1,8 @@
 package main
 
 import (
+	"shoot/pkg/audience"
+
 	"github.com/tusharsoni/copper/chttp"
 	"github.com/tusharsoni/copper/csql"
 	"go.uber.org/fx"
@@ -9,8 +11,9 @@ import (
 type Config struct {
 	fx.Out
 
-	HTTP chttp.Config
-	SQL  csql.Config
+	HTTP     chttp.Config
+	SQL      csql.Config
+	Audience audience.Config
 }
 
 func NewConfig() Config {
@@ -24,6 +27,9 @@ func NewConfig() Config {
 			Port: 5432,
 			Name: "shoot",
 			User: "postgres",
+		},
+		Audience: audience.Config{
+			BaseURL: "https://shoot.telab.co/",
 		},
 	}
 }

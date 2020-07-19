@@ -1,9 +1,13 @@
 package audience
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 const (
-	ContactStatusSubscribed = "SUBSCRIBED"
+	ContactStatusSubscribed   = "SUBSCRIBED"
+	ContactStatusUnsubscribed = "UNSUBSCRIBED"
 )
 
 type Segment struct {
@@ -21,4 +25,15 @@ type Contact struct {
 	Email     string `gorm:"not null"`
 	Status    string `gorm:"not null"`
 	Params    string `gorm:"not null"`
+}
+
+func (c *Contact) ParamsJSON() (map[string]interface{}, error) {
+	var params map[string]interface{}
+
+	err := json.Unmarshal([]byte(c.Params), &params)
+	if err != nil {
+		return nil, err
+	}
+
+	return params, nil
 }
