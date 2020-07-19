@@ -3,6 +3,7 @@ package campaign
 import (
 	"context"
 	"encoding/json"
+	"net/url"
 	"path"
 	"shoot/pkg/audience"
 	"shoot/pkg/content"
@@ -283,5 +284,7 @@ func (s *svc) LogEvent(ctx context.Context, campaignUUID, contactUUID, event str
 }
 
 func (s *svc) GetOpenEventImageURL(campaignUUID, contactUUID string) string {
-	return path.Join(s.config.BaseURL, "/api/campaigns/", campaignUUID, "/events/", contactUUID, "/open.png")
+	imgURL, _ := url.Parse(path.Join("/api/campaigns/", campaignUUID, "/events/", contactUUID, "/open.png"))
+
+	return s.config.BaseURL.ResolveReference(imgURL).String()
 }

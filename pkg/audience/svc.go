@@ -2,6 +2,7 @@ package audience
 
 import (
 	"context"
+	"net/url"
 	"path"
 
 	"github.com/google/uuid"
@@ -135,7 +136,9 @@ func (s *svc) UnsubscribeContact(ctx context.Context, uuid string) error {
 }
 
 func (s *svc) UnsubscribeURL(ctx context.Context, uuid string) string {
-	return path.Join(s.config.BaseURL, "/api/audience/contacts", uuid, "unsubscribe")
+	unsubURL, _ := url.Parse(path.Join("/api/audience/contacts/", uuid, "/unsubscribe"))
+
+	return s.config.BaseURL.ResolveReference(unsubURL).String()
 }
 
 func (s *svc) GetContactsByEmails(ctx context.Context, emails []string) ([]Contact, error) {

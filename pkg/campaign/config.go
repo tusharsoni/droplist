@@ -1,5 +1,7 @@
 package campaign
 
+import "net/url"
+
 type Config struct {
-	BaseURL string
+	BaseURL *url.URL
 }
