@@ -31,6 +31,7 @@ type Svc interface {
 	SegmentedContacts(ctx context.Context, userUUID, segmentUUID string) ([]Contact, error)
 	UnsubscribeContact(ctx context.Context, uuid string) error
 	UnsubscribeURL(ctx context.Context, uuid string) string
+	GetContactsByEmails(ctx context.Context, emails []string) ([]Contact, error)
 }
 
 type SvcParams struct {
@@ -135,4 +136,8 @@ func (s *svc) UnsubscribeContact(ctx context.Context, uuid string) error {
 
 func (s *svc) UnsubscribeURL(ctx context.Context, uuid string) string {
 	return path.Join(s.config.BaseURL, "/api/audience/contacts", uuid, "unsubscribe")
+}
+
+func (s *svc) GetContactsByEmails(ctx context.Context, emails []string) ([]Contact, error) {
+	return s.repo.FindContactsByEmails(ctx, emails)
 }

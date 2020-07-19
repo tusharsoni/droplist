@@ -10,4 +10,5 @@ var Fx = fx.Provide(
 	NewRouter,
 	NewCreateDraftCampaignRoute,
 	NewPublishCampaignRoute,
+	NewTestCampaignRoute,
 )

@@ -13,6 +13,7 @@ type Repo interface {
 	GetContactByUUID(ctx context.Context, uuid string) (*Contact, error)
 	FindContactsByCreatedBy(ctx context.Context, createdBy string) ([]Contact, error)
 	AddSegment(ctx context.Context, segment *Segment) error
+	FindContactsByEmails(ctx context.Context, emails []string) ([]Contact, error)
 }
 
 func NewSQLRepo(db *gorm.DB) Repo {
@@ -73,4 +74,20 @@ func (r *sqlRepo) AddSegment(ctx context.Context, segment *Segment) error {
 	}
 
 	return nil
+}
+
+func (r *sqlRepo) FindContactsByEmails(ctx context.Context, emails []string) ([]Contact, error) {
+	var contacts []Contact
+
+	err := csql.GetConn(ctx, r.db).
+		Where("email in (?)", emails).
+		Find(&contacts).
+		Error
+	if err != nil {
+		return nil, cerror.New(err, "failed to query contacts", map[string]interface{}{
+			"emails": emails,
+		})
+	}
+
+	return contacts, nil
 }

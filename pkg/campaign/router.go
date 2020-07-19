@@ -90,3 +90,36 @@ func (ro *Router) HandlePublishCampaign(w http.ResponseWriter, r *http.Request) 
 
 	ro.resp.OK(w, nil)
 }
+
+func NewTestCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/campaigns/{uuid}/test",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodPost},
+		Handler:         http.HandlerFunc(ro.HandleTestCampaign),
+	}}
+}
+
+func (ro *Router) HandleTestCampaign(w http.ResponseWriter, r *http.Request) {
+	var (
+		body struct {
+			Emails []string `json:"emails" valid:"optional"`
+		}
+		campaignUUID = mux.Vars(r)["uuid"]
+	)
+
+	if !ro.req.Read(w, r, &body) {
+		return
+	}
+
+	err := ro.svc.TestCampaign(r.Context(), campaignUUID, body.Emails)
+	if err != nil {
+		ro.logger.Error("Failed to send test campaign", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, map[string]bool{
+		"success": true,
+	})
+}

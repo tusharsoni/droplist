@@ -24,6 +24,7 @@ type Svc interface {
 	CreateDraftCampaign(ctx context.Context, userUUID string, p CreateCampaignParams) (*Campaign, error)
 	PublishCampaign(ctx context.Context, campaignUUID string) error
 	CompleteSendTask(ctx context.Context, taskUUID, status string) error
+	TestCampaign(ctx context.Context, campaignUUID string, recipients []string) error
 }
 
 type SvcParams struct {
@@ -84,6 +85,71 @@ func (s *svc) CreateDraftCampaign(ctx context.Context, userUUID string, p Create
 	}
 
 	return campaign, nil
+}
+
+func (s *svc) TestCampaign(ctx context.Context, campaignUUID string, recipients []string) error {
+	campaign, err := s.GetCampaign(ctx, campaignUUID)
+	if err != nil {
+		return cerror.New(err, "failed to get campaign", map[string]interface{}{
+			"uuid": campaignUUID,
+		})
+	}
+
+	tmpl, err := s.content.GetTemplate(ctx, campaign.TemplateUUID)
+	if err != nil {
+		return cerror.New(err, "failed to get template", map[string]interface{}{
+			"templateUUID": campaign.TemplateUUID,
+		})
+	}
+
+	contacts, err := s.audience.GetContactsByEmails(ctx, recipients)
+	if err != nil {
+		return cerror.New(err, "failed to get contacts", map[string]interface{}{
+			"emails": recipients,
+		})
+	}
+
+	for _, contact := range contacts {
+		contactParams, err := contact.ParamsJSON()
+		if err != nil {
+			return cerror.New(err, "failed to get contact params json", map[string]interface{}{
+				"contactUUID": contact.UUID,
+			})
+		}
+
+		params := map[string]interface{}{
+			"Contact":        contactParams,
+			"Subject":        tmpl.Subject,
+			"PreviewText":    tmpl.PreviewText,
+			"UnsubscribeURL": s.audience.UnsubscribeURL(ctx, contact.UUID),
+		}
+
+		paramsJ, err := json.Marshal(params)
+		if err != nil {
+			return cerror.New(err, "failed to marshal params as json", map[string]interface{}{
+				"campaignUUID": campaign.UUID,
+			})
+		}
+
+		err = s.queue.AddSendTask(ctx, &SendTask{
+			UUID:      uuid.New().String(),
+			FromName:  campaign.FromName,
+			FromEmail: campaign.FromEmail,
+			Subject:   tmpl.Subject,
+			HTMLBody:  tmpl.HTMLBody,
+			ToEmail:   contact.Email,
+			Params:    string(paramsJ),
+			Status:    SendTaskStatusQueued,
+		})
+		if err != nil {
+			return cerror.New(err, "failed to queue send tasks", map[string]interface{}{
+				"campaignUUID": campaign.UUID,
+				"contactUUID":  contact.UUID,
+			})
+		}
+	}
+
+	return nil
 }
 
 func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
