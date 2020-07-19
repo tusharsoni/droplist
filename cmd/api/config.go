@@ -1,7 +1,10 @@
 package main
 
 import (
+	"os"
 	"shoot/pkg/audience"
+
+	"github.com/tusharsoni/copper/cmailer"
 
 	"github.com/tusharsoni/copper/chttp"
 	"github.com/tusharsoni/copper/csql"
@@ -11,9 +14,10 @@ import (
 type Config struct {
 	fx.Out
 
-	HTTP     chttp.Config
-	SQL      csql.Config
-	Audience audience.Config
+	HTTP      chttp.Config
+	SQL       csql.Config
+	Audience  audience.Config
+	AWSMailer cmailer.AWSConfig
 }
 
 func NewConfig() Config {
@@ -30,6 +34,11 @@ func NewConfig() Config {
 		},
 		Audience: audience.Config{
 			BaseURL: "https://shoot.telab.co/",
+		},
+		AWSMailer: cmailer.AWSConfig{
+			Region:          "us-east-1",
+			AccessKeyId:     "AKIAIKIZY7B54QZ5M4UA",
+			SecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
 		},
 	}
 }

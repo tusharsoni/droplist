@@ -20,7 +20,7 @@ func main() {
 	app := copper.NewHTTPApp(
 		clogger.StdFx,
 		csql.Fx,
-		cmailer.LoggerFX,
+		cmailer.AWSFx,
 		cauth.Fx,
 		cauthanonymous.Fx,
 
