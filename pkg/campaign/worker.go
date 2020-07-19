@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tusharsoni/copper/cerror"
+
 	"github.com/tusharsoni/copper/clogger"
 	"github.com/tusharsoni/copper/cmailer"
 	"go.uber.org/fx"
@@ -25,7 +27,7 @@ type MailerParams struct {
 func RegisterMailer(p MailerParams) {
 	p.Lifecycle.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			go RunMailer(p)
+			go RunMailer(context.Background(), p)
 
 			return nil
 		},
@@ -36,81 +38,80 @@ func RegisterMailer(p MailerParams) {
 	})
 }
 
-func RunMailer(p MailerParams) {
+func RunMailer(ctx context.Context, p MailerParams) {
 	const (
-		runTime  = 5 * time.Minute
-		waitTime = 5 * time.Second
+		runTime   = 5 * time.Minute
+		rateLimit = 50 * time.Millisecond
 	)
 
+	var limiter = time.Tick(rateLimit)
+
 	for {
-		var (
-			ctx, cancel   = context.WithTimeout(context.Background(), runTime)
-			contactParams = make(map[string]interface{})
-			emailBody     strings.Builder
-		)
-
-		task, err := p.Queue.NextSendTask(ctx)
-		if err != nil {
-			p.Logger.Error("Failed to get next send task, exiting..", err)
-			cancel()
-			return
-		}
-
-		if task == nil {
-			time.Sleep(waitTime)
-			cancel()
-			continue
-		}
-
-		handleTaskErr := func(log string, err error) {
-			p.Logger.Error(log, err)
-			err = p.Svc.CompleteSendTask(ctx, task.UUID, SendTaskStatusFailed)
+		select {
+		case <-limiter:
+			task, err := p.Queue.NextSendTask(ctx)
 			if err != nil {
-				p.Logger.Error("Failed to mark task as failed", err)
+				p.Logger.Error("Failed to get next send task, exiting..", err)
+				return
 			}
+
+			ctx, cancel := context.WithTimeout(ctx, runTime)
+
+			err = runSendTask(ctx, p.Mailer, task)
+			if err != nil {
+				p.Logger.Error("Failed to run send task", err)
+				err = p.Svc.CompleteSendTask(ctx, task.UUID, SendTaskStatusFailed)
+				if err != nil {
+					p.Logger.Error("Failed to mark task as failed", err)
+				}
+				cancel()
+				continue
+			}
+
+			err = p.Svc.CompleteSendTask(ctx, task.UUID, SendTaskStatusSent)
+			if err != nil {
+				p.Logger.Error("Failed to mark task as sent", err)
+			}
+
 			cancel()
 		}
-
-		tmpl, err := template.New(task.UUID).Parse(task.HTMLBody)
-		if err != nil {
-			handleTaskErr("Failed to parse HTML body", err)
-			continue
-		}
-
-		err = json.Unmarshal([]byte(task.ContactParams), &contactParams)
-		if err != nil {
-			handleTaskErr("Failed to parse contact params", err)
-			continue
-		}
-
-		params := map[string]interface{}{
-			"Contact": contactParams,
-		}
-
-		err = tmpl.Execute(&emailBody, params)
-		if err != nil {
-			handleTaskErr("Failed to execute email template", err)
-			continue
-		}
-
-		_, err = p.Mailer.SendHTML(
-			task.FromEmail,
-			task.ToEmail,
-			task.Subject,
-			emailBody.String(),
-		)
-		if err != nil {
-			handleTaskErr("Failed to send email", err)
-			continue
-		}
-
-		err = p.Svc.CompleteSendTask(ctx, task.UUID, SendTaskStatusSent)
-		if err != nil {
-			p.Logger.Error("Failed to mark task as sent", err)
-			cancel()
-			continue
-		}
-
-		cancel()
 	}
+}
+
+func runSendTask(ctx context.Context, mailer cmailer.Mailer, task *SendTask) error {
+	var (
+		contactParams = make(map[string]interface{})
+		emailBody     strings.Builder
+	)
+
+	tmpl, err := template.New(task.UUID).Parse(task.HTMLBody)
+	if err != nil {
+		return cerror.New(err, "failed to parse html body", nil)
+	}
+
+	err = json.Unmarshal([]byte(task.ContactParams), &contactParams)
+	if err != nil {
+		return cerror.New(err, "failed to parse contact params", nil)
+	}
+
+	params := map[string]interface{}{
+		"Contact": contactParams,
+	}
+
+	err = tmpl.Execute(&emailBody, params)
+	if err != nil {
+		return cerror.New(err, "failed to execute email template", nil)
+	}
+
+	_, err = mailer.SendHTML(ctx,
+		task.FromEmail,
+		task.ToEmail,
+		task.Subject,
+		emailBody.String(),
+	)
+	if err != nil {
+		return cerror.New(err, "failed to send email", nil)
+	}
+
+	return nil
 }

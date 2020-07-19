@@ -2,6 +2,7 @@ package campaign
 
 import (
 	"context"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/tusharsoni/copper/cerror"
@@ -33,6 +34,8 @@ func (r *sqlQueue) AddSendTask(ctx context.Context, sendTask *SendTask) error {
 }
 
 func (r *sqlQueue) NextSendTask(ctx context.Context) (*SendTask, error) {
+	const waitTime = 5 * time.Second
+
 	var (
 		task  SendTask
 		query = `
@@ -47,12 +50,15 @@ func (r *sqlQueue) NextSendTask(ctx context.Context) (*SendTask, error) {
 				RETURNING *;`
 	)
 
-	err := csql.GetConn(ctx, r.db).Raw(query).Scan(&task).Error
-	if err != nil && err == gorm.ErrRecordNotFound {
-		return nil, nil
-	} else if err != nil {
-		return nil, cerror.New(err, "failed to query next send task", nil)
-	}
+	for {
+		err := csql.GetConn(ctx, r.db).Raw(query).Scan(&task).Error
+		if err != nil && err == gorm.ErrRecordNotFound {
+			time.Sleep(waitTime)
+			continue
+		} else if err != nil {
+			return nil, cerror.New(err, "failed to query next send task", nil)
+		}
 
-	return &task, nil
+		return &task, nil
+	}
 }
