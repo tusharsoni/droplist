@@ -100,7 +100,7 @@ func runSendTask(ctx context.Context, mailer cmailer.Mailer, task *SendTask) err
 	}
 
 	_, err = mailer.SendHTML(ctx,
-		task.FromEmail,
+		task.FromName+" <"+task.FromEmail+">",
 		task.ToEmail,
 		task.Subject,
 		emailBody.String(),
