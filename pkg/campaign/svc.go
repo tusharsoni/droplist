@@ -139,14 +139,16 @@ func (s *svc) TestCampaign(ctx context.Context, campaignUUID string, recipients 
 		}
 
 		err = s.queue.AddSendTask(ctx, &SendTask{
-			UUID:      uuid.New().String(),
-			FromName:  campaign.FromName,
-			FromEmail: campaign.FromEmail,
-			Subject:   tmpl.Subject,
-			HTMLBody:  tmpl.HTMLBody,
-			ToEmail:   contact.Email,
-			Params:    string(paramsJ),
-			Status:    SendTaskStatusQueued,
+			UUID:         uuid.New().String(),
+			CampaignUUID: campaign.UUID,
+			ContactUUID:  contact.UUID,
+			FromName:     campaign.FromName,
+			FromEmail:    campaign.FromEmail,
+			Subject:      tmpl.Subject,
+			HTMLBody:     tmpl.HTMLBody,
+			ToEmail:      contact.Email,
+			Params:       string(paramsJ),
+			Status:       SendTaskStatusQueued,
 		})
 		if err != nil {
 			return cerror.New(err, "failed to queue send tasks", map[string]interface{}{
@@ -218,14 +220,16 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 		}
 
 		err = s.queue.AddSendTask(ctx, &SendTask{
-			UUID:      uuid.New().String(),
-			FromName:  campaign.FromName,
-			FromEmail: campaign.FromEmail,
-			Subject:   tmpl.Subject,
-			HTMLBody:  tmpl.HTMLBody,
-			ToEmail:   contact.Email,
-			Params:    string(paramsJ),
-			Status:    SendTaskStatusQueued,
+			UUID:         uuid.New().String(),
+			CampaignUUID: campaign.UUID,
+			ContactUUID:  contact.UUID,
+			FromName:     campaign.FromName,
+			FromEmail:    campaign.FromEmail,
+			Subject:      tmpl.Subject,
+			HTMLBody:     tmpl.HTMLBody,
+			ToEmail:      contact.Email,
+			Params:       string(paramsJ),
+			Status:       SendTaskStatusQueued,
 		})
 		if err != nil {
 			return cerror.New(err, "failed to queue send tasks", map[string]interface{}{

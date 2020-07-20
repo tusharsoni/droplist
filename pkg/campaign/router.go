@@ -142,7 +142,7 @@ func (ro *Router) HandleClickEvent(w http.ResponseWriter, r *http.Request) {
 		url          = r.URL.Query().Get("url")
 	)
 
-	err := ro.svc.LogEvent(r.Context(), campaignUUID, contactUUID, EventOpen)
+	err := ro.svc.LogEvent(r.Context(), campaignUUID, contactUUID, EventClick)
 	if err != nil {
 		ro.logger.WithTags(map[string]interface{}{
 			"campaignUUID": campaignUUID,

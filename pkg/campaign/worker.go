@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"html/template"
+	"net/url"
+	"path"
 	"strings"
 	"time"
 
@@ -21,6 +23,7 @@ type MailerParams struct {
 	Queue     Queue
 	Mailer    cmailer.Mailer
 	Logger    clogger.Logger
+	Config    Config
 	Lifecycle fx.Lifecycle
 }
 
@@ -57,7 +60,7 @@ func RunMailer(ctx context.Context, p MailerParams) {
 
 			ctx, cancel := context.WithTimeout(ctx, runTime)
 
-			err = runSendTask(ctx, p.Mailer, task)
+			err = runSendTask(ctx, p, task)
 			if err != nil {
 				p.Logger.Error("Failed to run send task", err)
 				err = p.Svc.CompleteSendTask(ctx, task.UUID, SendTaskStatusFailed)
@@ -78,13 +81,24 @@ func RunMailer(ctx context.Context, p MailerParams) {
 	}
 }
 
-func runSendTask(ctx context.Context, mailer cmailer.Mailer, task *SendTask) error {
+func runSendTask(ctx context.Context, p MailerParams, task *SendTask) error {
 	var (
 		params    = make(map[string]interface{})
 		emailBody strings.Builder
 	)
 
-	tmpl, err := template.New(task.UUID).Parse(task.HTMLBody)
+	tmpl, err := template.New(task.UUID).Funcs(template.FuncMap{
+		"trackURL": func(redirectTo string) string {
+			imgURL, _ := url.Parse(path.Join("/api/campaigns/", task.CampaignUUID, "/events/", task.ContactUUID, "/click"))
+
+			imgURLQuery := imgURL.Query()
+			imgURLQuery.Add("url", redirectTo)
+
+			imgURL.RawQuery = imgURLQuery.Encode()
+
+			return p.Config.BaseURL.ResolveReference(imgURL).String()
+		},
+	}).Parse(task.HTMLBody)
 	if err != nil {
 		return cerror.New(err, "failed to parse html body", nil)
 	}
@@ -99,7 +113,7 @@ func runSendTask(ctx context.Context, mailer cmailer.Mailer, task *SendTask) err
 		return cerror.New(err, "failed to execute email template", nil)
 	}
 
-	_, err = mailer.SendHTML(ctx,
+	_, err = p.Mailer.SendHTML(ctx,
 		task.FromName+" <"+task.FromEmail+">",
 		task.ToEmail,
 		task.Subject,
