@@ -44,7 +44,7 @@ func RegisterMailer(p MailerParams) {
 func RunMailer(ctx context.Context, p MailerParams) {
 	const (
 		runTime   = 5 * time.Minute
-		rateLimit = 50 * time.Millisecond
+		rateLimit = 100 * time.Millisecond
 	)
 
 	var limiter = time.Tick(rateLimit)
