@@ -7,12 +7,14 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "baseui": "^9.87.1",
+    "luxon": "^1.24.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "styletron-engine-atomic": "^1.4.6",
-    "styletron-react": "^5.2.7"
+    "styletron-react": "^5.2.7",
+    "use-http": "^1.0.13"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -38,5 +40,6 @@
     "eslint-plugin-prettier": "^3.1.4",
     "flow-bin": "^0.110.0",
     "prettier": "^2.0.5"
-  }
+  },
+  "proxy": "http://localhost:9712"
 }

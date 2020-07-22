@@ -6,6 +6,7 @@ import { Provider as StyletronProvider } from "styletron-react";
 import { LightTheme, BaseProvider } from "baseui";
 import AppRouter from "./router";
 import "./index.css";
+import HTTPProvider from "./lib/http-provider";
 
 const engine = new Styletron();
 
@@ -16,7 +17,9 @@ ReactDOM.render(
         theme={LightTheme}
         overrides={{ AppContainer: { style: { height: "100%" } } }}
       >
-        <AppRouter />
+        <HTTPProvider>
+          <AppRouter />
+        </HTTPProvider>
       </BaseProvider>
     </StyletronProvider>
   </React.StrictMode>,
