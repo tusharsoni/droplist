@@ -12,7 +12,10 @@ const engine = new Styletron();
 ReactDOM.render(
   <React.StrictMode>
     <StyletronProvider value={engine}>
-      <BaseProvider theme={LightTheme}>
+      <BaseProvider
+        theme={LightTheme}
+        overrides={{ AppContainer: { style: { height: "100%" } } }}
+      >
         <AppRouter />
       </BaseProvider>
     </StyletronProvider>
