@@ -1,3 +1,4 @@
+// @flow
 import React from "react";
 import { H1 } from "baseui/typography";
 import { Button } from "baseui/button";

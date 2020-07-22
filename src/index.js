@@ -1,3 +1,4 @@
+// @flow
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
@@ -16,5 +17,6 @@ ReactDOM.render(
       </BaseProvider>
     </StyletronProvider>
   </React.StrictMode>,
+  // $FlowFixMe: root element exists
   document.getElementById("root")
 );
