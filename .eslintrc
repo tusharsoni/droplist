@@ -1,0 +1,13 @@
+{
+    "extends": ["react-app"],
+    "plugins": [
+      "prettier",
+      "baseui"
+    ],
+    "rules": {
+      "prettier/prettier": "error",
+      "baseui/deprecated-theme-api": "warn",
+      "baseui/deprecated-component-api": "warn",
+      "baseui/no-deep-imports": "warn"
+    }
+}
