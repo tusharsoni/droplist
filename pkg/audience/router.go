@@ -2,6 +2,7 @@ package audience
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 
@@ -81,10 +82,30 @@ func NewListContactsRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 }
 
 func (ro *Router) HandleListContacts(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	userUUID := cauth.GetCurrentUserUUID(ctx)
+	const (
+		defaultLimit  = int(20)
+		defaultOffset = int(0)
+	)
 
-	contacts, err := ro.svc.ListUserContacts(ctx, userUUID)
+	var (
+		ctx      = r.Context()
+		userUUID = cauth.GetCurrentUserUUID(ctx)
+
+		rawLimit  = r.URL.Query().Get("limit")
+		rawOffset = r.URL.Query().Get("offset")
+	)
+
+	limit, err := strconv.Atoi(rawLimit)
+	if err != nil {
+		limit = defaultLimit
+	}
+
+	offset, err := strconv.Atoi(rawOffset)
+	if err != nil {
+		offset = defaultOffset
+	}
+
+	contacts, err := ro.svc.ListUserContacts(ctx, userUUID, limit, offset)
 	if err != nil {
 		ro.logger.Error("Failed to list user contacts", err)
 		ro.resp.InternalErr(w)

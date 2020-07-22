@@ -26,10 +26,10 @@ type CreateSegmentParams struct {
 
 type Svc interface {
 	CreateContacts(ctx context.Context, userUUID string, p []CreateContactParams) ([]CreateContactResult, error)
-	ListUserContacts(ctx context.Context, userUUID string) ([]Contact, error)
+	ListUserContacts(ctx context.Context, userUUID string, limit, offset int) ([]Contact, error)
 	GetContact(ctx context.Context, contactUUID string) (*Contact, error)
 	CreateSegment(ctx context.Context, p CreateSegmentParams) (*Segment, error)
-	SegmentedContacts(ctx context.Context, userUUID, segmentUUID string) ([]Contact, error)
+	SegmentedContacts(ctx context.Context, userUUID, segmentUUID string, limit, offset int) ([]Contact, error)
 	UnsubscribeContact(ctx context.Context, uuid string) error
 	UnsubscribeURL(ctx context.Context, uuid string) string
 	GetContactsByEmails(ctx context.Context, emails []string) ([]Contact, error)
@@ -89,12 +89,12 @@ func (s *svc) CreateContacts(ctx context.Context, userUUID string, createParams 
 	return results, nil
 }
 
-func (s *svc) SegmentedContacts(ctx context.Context, userUUID, segmentUUID string) ([]Contact, error) {
-	return s.ListUserContacts(ctx, userUUID)
+func (s *svc) SegmentedContacts(ctx context.Context, userUUID, segmentUUID string, limit, offset int) ([]Contact, error) {
+	return s.ListUserContacts(ctx, userUUID, limit, offset)
 }
 
-func (s *svc) ListUserContacts(ctx context.Context, userUUID string) ([]Contact, error) {
-	return s.repo.FindContactsByCreatedBy(ctx, userUUID)
+func (s *svc) ListUserContacts(ctx context.Context, userUUID string, limit, offset int) ([]Contact, error) {
+	return s.repo.FindContactsByCreatedBy(ctx, userUUID, limit, offset)
 }
 
 func (s *svc) CreateSegment(ctx context.Context, p CreateSegmentParams) (*Segment, error) {

@@ -11,7 +11,7 @@ import (
 type Repo interface {
 	AddContact(ctx context.Context, contact *Contact) error
 	GetContactByUUID(ctx context.Context, uuid string) (*Contact, error)
-	FindContactsByCreatedBy(ctx context.Context, createdBy string) ([]Contact, error)
+	FindContactsByCreatedBy(ctx context.Context, createdBy string, limit, offset int) ([]Contact, error)
 	AddSegment(ctx context.Context, segment *Segment) error
 	FindContactsByEmails(ctx context.Context, emails []string) ([]Contact, error)
 }
@@ -51,11 +51,14 @@ func (r *sqlRepo) GetContactByUUID(ctx context.Context, uuid string) (*Contact, 
 	return &contact, nil
 }
 
-func (r *sqlRepo) FindContactsByCreatedBy(ctx context.Context, createdBy string) ([]Contact, error) {
+func (r *sqlRepo) FindContactsByCreatedBy(ctx context.Context, createdBy string, limit, offset int) ([]Contact, error) {
 	var contacts []Contact
 
 	err := csql.GetConn(ctx, r.db).
 		Where(&Contact{CreatedBy: createdBy}).
+		Order("updated_at DESC").
+		Limit(limit).
+		Offset(offset).
 		Find(&contacts).
 		Error
 	if err != nil {
