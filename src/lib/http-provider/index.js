@@ -9,6 +9,7 @@ type Props = {
 
 const HTTPProvider = (props: Props) => {
   const options = {
+    cachePolicy: "no-cache",
     interceptors: {
       request: async ({ options }) => {
         const username = "490a8945-be70-4324-969a-8b9475eb970e";

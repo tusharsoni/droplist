@@ -16,3 +16,8 @@ export type Contact = {
   Status: ContactStatus,
   Params: string,
 };
+
+export type CreateContactResult = {
+  email: string,
+  success: boolean,
+};

@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^7.1.2",
     "baseui": "^9.87.1",
     "luxon": "^1.24.1",
+    "papaparse": "^5.2.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",

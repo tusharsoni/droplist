@@ -2,7 +2,7 @@
 import * as React from "react";
 import { Display3, Label1 } from "baseui/typography";
 import { useStyletron } from "baseui";
-import { Spacer20 } from "../../style-guide/spacer";
+import { Spacer20, Spacer8 } from "../../style-guide/spacer";
 import type { Contact } from "../../lib/types/audience";
 import { Button, KIND, SIZE } from "baseui/button";
 import {
@@ -11,9 +11,9 @@ import {
   ModalButton,
   ModalFooter,
   ModalHeader,
-  ROLE,
 } from "baseui/modal";
 import useFetch from "use-http";
+import { Link } from "react-router-dom";
 
 type Props = {
   totalContacts: number,
@@ -52,18 +52,30 @@ const AudienceTableHeader = (props: Props) => {
               : `${props.subscribedContacts.toLocaleString()} of these are subscribers.`}
           </Label1>
         </div>
-        <div>
+        <div className={css({ display: "flex" })}>
           {selectedCount ? (
-            <Button
-              kind={KIND.secondary}
-              size={SIZE.compact}
-              onClick={() => setShowConfirmModal(true)}
-            >
-              {selectedCount === 1
-                ? "Delete 1 contact"
-                : `Delete ${selectedCount} contacts`}
-            </Button>
+            <>
+              <Button
+                kind={KIND.secondary}
+                size={SIZE.compact}
+                onClick={() => setShowConfirmModal(true)}
+              >
+                {selectedCount === 1
+                  ? "Delete 1 contact"
+                  : `Delete ${selectedCount} contacts`}
+              </Button>
+              <Spacer8 />
+            </>
           ) : null}
+
+          <Link
+            className={css({ textDecoration: "none" })}
+            to={"/audience/contacts/import"}
+          >
+            <Button kind={KIND.secondary} size={SIZE.compact}>
+              Import Contacts
+            </Button>
+          </Link>
         </div>
       </div>
 
