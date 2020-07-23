@@ -2,7 +2,6 @@
 
 import React from "react";
 import PageLayout from "../../style-guide/page-layout";
-import AudienceTableHeader from "./table-header";
 import { Spacer40 } from "../../style-guide/spacer";
 import AudienceTable from "./table";
 import { Pagination } from "baseui/pagination";
@@ -54,20 +53,19 @@ const AudiencePage = () => {
 
   return (
     <PageLayout>
-      <AudienceTableHeader
-        totalContacts={summary.TotalContacts}
-        subscribedContacts={summary.SubscribedContacts}
-      />
-      <Spacer40 />
-      <AudienceTable contacts={contacts} />
-      <Spacer40 />
-      <Pagination
-        numPages={Math.ceil(summary.TotalContacts / CONTACTS_PER_PAGE)}
-        currentPage={page}
-        onPageChange={({ nextPage }) =>
-          history.push(`/audience?page=${nextPage}`)
-        }
-      />
+      <AudienceTable summary={summary} contacts={contacts} />
+      {summary.TotalContacts > CONTACTS_PER_PAGE && (
+        <>
+          <Spacer40 />
+          <Pagination
+            numPages={Math.ceil(summary.TotalContacts / CONTACTS_PER_PAGE)}
+            currentPage={page}
+            onPageChange={({ nextPage }) =>
+              history.push(`/audience?page=${nextPage}`)
+            }
+          />
+        </>
+      )}
     </PageLayout>
   );
 };
