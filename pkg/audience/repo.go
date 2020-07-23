@@ -11,6 +11,7 @@ import (
 type Repo interface {
 	AddContact(ctx context.Context, contact *Contact) error
 	GetContactByUUID(ctx context.Context, uuid string) (*Contact, error)
+	CountContacts(ctx context.Context, createdBy string, status *string) (int64, error)
 	FindContactsByCreatedBy(ctx context.Context, createdBy string, limit, offset int) ([]Contact, error)
 	AddSegment(ctx context.Context, segment *Segment) error
 	FindContactsByEmails(ctx context.Context, emails []string) ([]Contact, error)
@@ -49,6 +50,31 @@ func (r *sqlRepo) GetContactByUUID(ctx context.Context, uuid string) (*Contact, 
 	}
 
 	return &contact, nil
+}
+
+func (r *sqlRepo) CountContacts(ctx context.Context, createdBy string, status *string) (int64, error) {
+	var (
+		count int64
+		query = csql.GetConn(ctx, r.db).
+			Model(&Contact{}).
+			Where(&Contact{CreatedBy: createdBy})
+	)
+
+	if status != nil {
+		query = query.Where(&Contact{Status: *status})
+	}
+
+	err := query.
+		Count(&count).
+		Error
+	if err != nil {
+		return 0, cerror.New(err, "failed to query contacts count", map[string]interface{}{
+			"createdBy": createdBy,
+			"status":    status,
+		})
+	}
+
+	return count, nil
 }
 
 func (r *sqlRepo) FindContactsByCreatedBy(ctx context.Context, createdBy string, limit, offset int) ([]Contact, error) {

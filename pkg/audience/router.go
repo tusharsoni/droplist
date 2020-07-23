@@ -41,6 +41,31 @@ func NewRouter(p RouterParams) *Router {
 	}
 }
 
+func NewSummaryRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/audience/summary",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodGet},
+		Handler:         http.HandlerFunc(ro.HandleSummary),
+	}}
+}
+
+func (ro *Router) HandleSummary(w http.ResponseWriter, r *http.Request) {
+	var (
+		ctx      = r.Context()
+		userUUID = cauth.GetCurrentUserUUID(ctx)
+	)
+
+	summary, err := ro.svc.Summary(ctx, userUUID)
+	if err != nil {
+		ro.logger.Error("Failed to get audience summary", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, summary)
+}
+
 func NewCreateContactsRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
 		Path:            "/api/audience/contacts",

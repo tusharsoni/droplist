@@ -24,7 +24,14 @@ type CreateContactResult struct {
 type CreateSegmentParams struct {
 }
 
+type Summary struct {
+	TotalContacts        int64
+	SubscribedContacts   int64
+	UnsubscribedContacts int64
+}
+
 type Svc interface {
+	Summary(ctx context.Context, userUUID string) (*Summary, error)
 	CreateContacts(ctx context.Context, userUUID string, p []CreateContactParams) ([]CreateContactResult, error)
 	ListUserContacts(ctx context.Context, userUUID string, limit, offset int) ([]Contact, error)
 	GetContact(ctx context.Context, contactUUID string) (*Contact, error)
@@ -55,6 +62,42 @@ type svc struct {
 	repo   Repo
 	config Config
 	logger clogger.Logger
+}
+
+func (s *svc) Summary(ctx context.Context, userUUID string) (*Summary, error) {
+	var (
+		statusSubscribed   = ContactStatusSubscribed
+		statusUnsubscribed = ContactStatusUnsubscribed
+	)
+
+	totalContacts, err := s.repo.CountContacts(ctx, userUUID, nil)
+	if err != nil {
+		return nil, cerror.New(err, "failed to get total contacts count", map[string]interface{}{
+			"userUUID": userUUID,
+		})
+	}
+
+	subscribedContacts, err := s.repo.CountContacts(ctx, userUUID, &statusSubscribed)
+	if err != nil {
+		return nil, cerror.New(err, "failed to get contacts count", map[string]interface{}{
+			"userUUID": userUUID,
+			"status":   statusSubscribed,
+		})
+	}
+
+	unsubscribedContacts, err := s.repo.CountContacts(ctx, userUUID, &statusUnsubscribed)
+	if err != nil {
+		return nil, cerror.New(err, "failed to get contacts count", map[string]interface{}{
+			"userUUID": userUUID,
+			"status":   statusUnsubscribed,
+		})
+	}
+
+	return &Summary{
+		TotalContacts:        totalContacts,
+		SubscribedContacts:   subscribedContacts,
+		UnsubscribedContacts: unsubscribedContacts,
+	}, nil
 }
 
 func (s *svc) CreateContacts(ctx context.Context, userUUID string, createParams []CreateContactParams) ([]CreateContactResult, error) {
