@@ -40,6 +40,7 @@ type Svc interface {
 	UnsubscribeContact(ctx context.Context, uuid string) error
 	UnsubscribeURL(ctx context.Context, uuid string) string
 	GetContactsByEmails(ctx context.Context, emails []string) ([]Contact, error)
+	DeleteContacts(ctx context.Context, userUUID string, uuids []string) error
 }
 
 type SvcParams struct {
@@ -130,6 +131,25 @@ func (s *svc) CreateContacts(ctx context.Context, userUUID string, createParams 
 	}
 
 	return results, nil
+}
+
+func (s *svc) DeleteContacts(ctx context.Context, userUUID string, uuids []string) error {
+	var err error
+
+	if len(uuids) > 0 {
+		err = s.repo.DeleteContactsByUUIDs(ctx, uuids)
+	} else {
+		err = s.repo.DeleteContactsByCreatedBy(ctx, userUUID)
+	}
+
+	if err != nil {
+		return cerror.New(err, "failed to delete contacts", map[string]interface{}{
+			"userUUID":     userUUID,
+			"contactUUIDs": uuids,
+		})
+	}
+
+	return nil
 }
 
 func (s *svc) SegmentedContacts(ctx context.Context, userUUID, segmentUUID string, limit, offset int) ([]Contact, error) {

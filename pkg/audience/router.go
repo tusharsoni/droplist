@@ -1,6 +1,7 @@
 package audience
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -138,6 +139,48 @@ func (ro *Router) HandleListContacts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ro.resp.OK(w, contacts)
+}
+
+func NewDeleteContactsRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/audience/contacts",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodDelete},
+		Handler:         http.HandlerFunc(ro.HandleDeleteContacts),
+	}}
+}
+
+func (ro *Router) HandleDeleteContacts(w http.ResponseWriter, r *http.Request) {
+	var (
+		body struct {
+			DeleteAll    bool     `json:"delete_all" valid:"optional"`
+			ContactUUIDs []string `json:"contact_uuids" valid:"optional"`
+		}
+		ctx      = r.Context()
+		userUUID = cauth.GetCurrentUserUUID(ctx)
+	)
+
+	if !ro.req.Read(w, r, &body) {
+		return
+	}
+
+	if !body.DeleteAll && len(body.ContactUUIDs) == 0 {
+		ro.resp.BadRequest(w, errors.New("contact uuids are required if delete all is false"))
+		return
+	}
+
+	if body.DeleteAll {
+		body.ContactUUIDs = nil
+	}
+
+	err := ro.svc.DeleteContacts(ctx, userUUID, body.ContactUUIDs)
+	if err != nil {
+		ro.logger.Error("Failed to delete contacts", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, nil)
 }
 
 func NewUnsubscribeContactRoute(ro *Router) chttp.RouteResult {

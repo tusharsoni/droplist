@@ -15,6 +15,8 @@ type Repo interface {
 	FindContactsByCreatedBy(ctx context.Context, createdBy string, limit, offset int) ([]Contact, error)
 	AddSegment(ctx context.Context, segment *Segment) error
 	FindContactsByEmails(ctx context.Context, emails []string) ([]Contact, error)
+	DeleteContactsByUUIDs(ctx context.Context, uuids []string) error
+	DeleteContactsByCreatedBy(ctx context.Context, createdBy string) error
 }
 
 func NewSQLRepo(db *gorm.DB) Repo {
@@ -94,6 +96,34 @@ func (r *sqlRepo) FindContactsByCreatedBy(ctx context.Context, createdBy string,
 	}
 
 	return contacts, nil
+}
+
+func (r *sqlRepo) DeleteContactsByCreatedBy(ctx context.Context, createdBy string) error {
+	err := csql.GetConn(ctx, r.db).
+		Where(&Contact{CreatedBy: createdBy}).
+		Delete(&Contact{}).
+		Error
+	if err != nil {
+		return cerror.New(err, "failed to delete contacts", map[string]interface{}{
+			"createdBy": createdBy,
+		})
+	}
+
+	return nil
+}
+
+func (r *sqlRepo) DeleteContactsByUUIDs(ctx context.Context, uuids []string) error {
+	err := csql.GetConn(ctx, r.db).
+		Where("uuid in (?)", uuids).
+		Delete(&Contact{}).
+		Error
+	if err != nil {
+		return cerror.New(err, "failed to delete contacts", map[string]interface{}{
+			"uuids": uuids,
+		})
+	}
+
+	return nil
 }
 
 func (r *sqlRepo) AddSegment(ctx context.Context, segment *Segment) error {
