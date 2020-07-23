@@ -10,6 +10,7 @@ import (
 
 type Repo interface {
 	AddContact(ctx context.Context, contact *Contact) error
+	AddContactWithoutTxn(ctx context.Context, contact *Contact) error
 	GetContactByUUID(ctx context.Context, uuid string) (*Contact, error)
 	CountContacts(ctx context.Context, createdBy string, status *string) (int64, error)
 	FindContactsByCreatedBy(ctx context.Context, createdBy string, limit, offset int) ([]Contact, error)
@@ -31,6 +32,15 @@ type sqlRepo struct {
 
 func (r *sqlRepo) AddContact(ctx context.Context, contact *Contact) error {
 	err := csql.GetConn(ctx, r.db).Save(contact).Error
+	if err != nil {
+		return cerror.New(err, "failed to add contact", nil)
+	}
+
+	return nil
+}
+
+func (r *sqlRepo) AddContactWithoutTxn(ctx context.Context, contact *Contact) error {
+	err := r.db.Save(contact).Error
 	if err != nil {
 		return cerror.New(err, "failed to add contact", nil)
 	}

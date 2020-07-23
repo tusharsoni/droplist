@@ -105,12 +105,13 @@ func (s *svc) CreateContacts(ctx context.Context, userUUID string, createParams 
 	results := make([]CreateContactResult, len(createParams))
 
 	for i, p := range createParams {
-		err := s.repo.AddContact(ctx, &Contact{
+		err := s.repo.AddContactWithoutTxn(ctx, &Contact{
 			UUID:      uuid.New().String(),
 			CreatedBy: userUUID,
 			Email:     p.Email,
 			Status:    ContactStatusSubscribed,
 			Params:    p.Params,
+
 		})
 		if err != nil {
 			s.logger.WithTags(map[string]interface{}{
