@@ -64,8 +64,12 @@ const TemplatesPage = () => {
           <div className={css({ paddingTop: "20px" })}>
             <Label2>{t.Name}</Label2>
             <Paragraph3>
-              {t.Subject}
-              <br />
+              {t.Subject && (
+                <>
+                  {t.Subject}
+                  <br />
+                </>
+              )}
               Last updated on{" "}
               {DateTime.fromISO(t.UpdatedAt).toLocaleString(
                 DateTime.DATETIME_SHORT
@@ -79,9 +83,15 @@ const TemplatesPage = () => {
               paddingTop: "20px",
             })}
           >
-            <Button size={SIZE.compact} kind={KIND.secondary}>
-              Edit
-            </Button>
+            <Link
+              className={css({ textDecoration: "none" })}
+              to={`/templates/${t.UUID}/edit`}
+            >
+              <Button size={SIZE.compact} kind={KIND.secondary}>
+                Edit
+              </Button>
+            </Link>
+
             <Spacer8 />
             <Button size={SIZE.compact} kind={KIND.secondary}>
               Create Campaign
