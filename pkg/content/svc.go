@@ -18,6 +18,7 @@ type CreateTemplateParams struct {
 type Svc interface {
 	CreateTemplate(ctx context.Context, userUUID string, p CreateTemplateParams) (*Template, error)
 	GetTemplate(ctx context.Context, uuid string) (*Template, error)
+	ListUserTemplates(ctx context.Context, userUUID string) ([]Template, error)
 }
 
 type SvcParams struct {
@@ -56,4 +57,8 @@ func (s *svc) CreateTemplate(ctx context.Context, userUUID string, p CreateTempl
 
 func (s *svc) GetTemplate(ctx context.Context, uuid string) (*Template, error) {
 	return s.repo.GetTemplateByUUID(ctx, uuid)
+}
+
+func (s *svc) ListUserTemplates(ctx context.Context, userUUID string) ([]Template, error) {
+	return s.repo.FindTemplatesByCreatedBy(ctx, userUUID)
 }

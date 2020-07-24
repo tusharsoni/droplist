@@ -111,7 +111,6 @@ func (s *svc) CreateContacts(ctx context.Context, userUUID string, createParams 
 			Email:     p.Email,
 			Status:    ContactStatusSubscribed,
 			Params:    p.Params,
-
 		})
 		if err != nil {
 			s.logger.WithTags(map[string]interface{}{

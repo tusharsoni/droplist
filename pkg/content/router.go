@@ -66,3 +66,28 @@ func (ro *Router) HandleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 
 	ro.resp.OK(w, tmpl)
 }
+
+func NewListTemplatesRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/content/templates",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodGet},
+		Handler:         http.HandlerFunc(ro.HandleListTemplates),
+	}}
+}
+
+func (ro *Router) HandleListTemplates(w http.ResponseWriter, r *http.Request) {
+	var (
+		ctx      = r.Context()
+		userUUID = cauth.GetCurrentUserUUID(ctx)
+	)
+
+	templates, err := ro.svc.ListUserTemplates(ctx, userUUID)
+	if err != nil {
+		ro.logger.Error("Failed to list user templates", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, templates)
+}

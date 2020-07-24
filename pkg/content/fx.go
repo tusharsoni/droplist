@@ -7,5 +7,6 @@ var Fx = fx.Provide(
 	NewSQLRepo,
 
 	NewRouter,
+	NewListTemplatesRoute,
 	NewCreateTemplateRoute,
 )

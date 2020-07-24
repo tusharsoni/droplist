@@ -11,6 +11,7 @@ import (
 type Repo interface {
 	AddTemplate(ctx context.Context, template *Template) error
 	GetTemplateByUUID(ctx context.Context, uuid string) (*Template, error)
+	FindTemplatesByCreatedBy(ctx context.Context, userUUID string) ([]Template, error)
 }
 
 func NewSQLRepo(db *gorm.DB) Repo {
@@ -46,4 +47,20 @@ func (r *sqlRepo) GetTemplateByUUID(ctx context.Context, uuid string) (*Template
 	}
 
 	return &template, nil
+}
+
+func (r *sqlRepo) FindTemplatesByCreatedBy(ctx context.Context, userUUID string) ([]Template, error) {
+	var templates []Template
+
+	err := csql.GetConn(ctx, r.db).
+		Where(&Template{CreatedBy: userUUID}).
+		Find(&templates).
+		Error
+	if err != nil {
+		return nil, cerror.New(err, "failed to query templates", map[string]interface{}{
+			"createdBy": userUUID,
+		})
+	}
+
+	return templates, nil
 }
