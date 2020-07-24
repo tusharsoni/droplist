@@ -115,3 +115,27 @@ func (ro *Router) HandleGetTemplate(w http.ResponseWriter, r *http.Request) {
 
 	ro.resp.OK(w, template)
 }
+
+func NewPreviewTemplateHTMLRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/content/templates/{uuid}/preview",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodGet},
+		Handler:         http.HandlerFunc(ro.HandlePreviewTemplateHTML),
+	}}
+}
+
+func (ro *Router) HandlePreviewTemplateHTML(w http.ResponseWriter, r *http.Request) {
+	templateUUID := mux.Vars(r)["uuid"]
+
+	html, err := ro.svc.GeneratePreviewHTML(r.Context(), templateUUID)
+	if err != nil {
+		ro.logger.Error("Failed to generate preview html", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, map[string]string{
+		"html": html,
+	})
+}

@@ -19,6 +19,7 @@ type Svc interface {
 	CreateTemplate(ctx context.Context, userUUID string, p CreateTemplateParams) (*Template, error)
 	GetTemplate(ctx context.Context, uuid string) (*Template, error)
 	ListUserTemplates(ctx context.Context, userUUID string) ([]Template, error)
+	GeneratePreviewHTML(ctx context.Context, templateUUID string) (string, error)
 }
 
 type SvcParams struct {
@@ -61,4 +62,26 @@ func (s *svc) GetTemplate(ctx context.Context, uuid string) (*Template, error) {
 
 func (s *svc) ListUserTemplates(ctx context.Context, userUUID string) ([]Template, error) {
 	return s.repo.FindTemplatesByCreatedBy(ctx, userUUID)
+}
+
+func (s *svc) GeneratePreviewHTML(ctx context.Context, templateUUID string) (string, error) {
+	tmpl, err := s.GetTemplate(ctx, templateUUID)
+	if err != nil {
+		return "", cerror.New(err, "failed to get template", map[string]interface{}{
+			"templateUUID": templateUUID,
+		})
+	}
+
+	params := map[string]interface{}{
+		"Contact": map[string]string{
+			"FirstName": "Jane",
+			"LastName":  "Doe",
+		},
+		"Subject":           tmpl.Subject,
+		"PreviewText":       tmpl.PreviewText,
+		"UnsubscribeURL":    "https://example.com/unsubscribe",
+		"OpenEventImageURL": "https://dummyimage.com/10x10/ffffff/fff.png",
+	}
+
+	return generatePreviewHTML(templateUUID, tmpl.HTMLBody, params)
 }
