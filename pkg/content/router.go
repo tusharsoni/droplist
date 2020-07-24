@@ -3,6 +3,8 @@ package content
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"github.com/tusharsoni/copper/cauth"
 
 	"github.com/tusharsoni/copper/chttp"
@@ -90,4 +92,26 @@ func (ro *Router) HandleListTemplates(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ro.resp.OK(w, templates)
+}
+
+func NewGetTemplateRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/content/templates/{uuid}",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodGet},
+		Handler:         http.HandlerFunc(ro.HandleGetTemplate),
+	}}
+}
+
+func (ro *Router) HandleGetTemplate(w http.ResponseWriter, r *http.Request) {
+	templateUUID := mux.Vars(r)["uuid"]
+
+	template, err := ro.svc.GetTemplate(r.Context(), templateUUID)
+	if err != nil {
+		ro.logger.Error("Failed to get template", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, template)
 }
