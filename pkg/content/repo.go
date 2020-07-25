@@ -54,6 +54,7 @@ func (r *sqlRepo) FindTemplatesByCreatedBy(ctx context.Context, userUUID string)
 
 	err := csql.GetConn(ctx, r.db).
 		Where(&Template{CreatedBy: userUUID}).
+		Order("updated_at DESC").
 		Find(&templates).
 		Error
 	if err != nil {
