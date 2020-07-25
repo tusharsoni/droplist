@@ -69,6 +69,35 @@ func (ro *Router) HandleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 	ro.resp.OK(w, tmpl)
 }
 
+func NewUpdateTemplateRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/content/templates/{uuid}",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodPost},
+		Handler:         http.HandlerFunc(ro.HandleUpdateTemplate),
+	}}
+}
+
+func (ro *Router) HandleUpdateTemplate(w http.ResponseWriter, r *http.Request) {
+	var (
+		templateUUID = mux.Vars(r)["uuid"]
+		body CreateTemplateParams
+	)
+
+	if !ro.req.Read(w, r, &body) {
+		return
+	}
+
+	tmpl, err := ro.svc.UpdateTemplate(r.Context(), templateUUID, body)
+	if err != nil {
+		ro.logger.Error("Failed to update template", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, tmpl)
+}
+
 func NewListTemplatesRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
 		Path:            "/api/content/templates",

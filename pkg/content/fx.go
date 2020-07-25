@@ -10,5 +10,6 @@ var Fx = fx.Provide(
 	NewGetTemplateRoute,
 	NewListTemplatesRoute,
 	NewCreateTemplateRoute,
+	NewUpdateTemplateRoute,
 	NewPreviewTemplateHTMLRoute,
 )

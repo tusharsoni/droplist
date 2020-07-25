@@ -18,6 +18,7 @@ type CreateTemplateParams struct {
 type Svc interface {
 	CreateTemplate(ctx context.Context, userUUID string, p CreateTemplateParams) (*Template, error)
 	GetTemplate(ctx context.Context, uuid string) (*Template, error)
+	UpdateTemplate(ctx context.Context, uuid string, p CreateTemplateParams) (*Template, error)
 	ListUserTemplates(ctx context.Context, userUUID string) ([]Template, error)
 	GeneratePreviewHTML(ctx context.Context, templateUUID string) (string, error)
 }
@@ -58,6 +59,27 @@ func (s *svc) CreateTemplate(ctx context.Context, userUUID string, p CreateTempl
 
 func (s *svc) GetTemplate(ctx context.Context, uuid string) (*Template, error) {
 	return s.repo.GetTemplateByUUID(ctx, uuid)
+}
+
+func (s *svc) UpdateTemplate(ctx context.Context, uuid string, p CreateTemplateParams) (*Template, error) {
+	tmpl, err := s.repo.GetTemplateByUUID(ctx, uuid)
+	if err != nil {
+		return nil, cerror.New(err, "failed to get template", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	tmpl.Name = p.Name
+	tmpl.Subject = p.Subject
+	tmpl.PreviewText = p.PreviewText
+	tmpl.HTMLBody = p.HTMLBody
+
+	err = s.repo.AddTemplate(ctx, tmpl)
+	if err != nil {
+		return nil, cerror.New(err, "failed to update template", nil)
+	}
+
+	return tmpl, nil
 }
 
 func (s *svc) ListUserTemplates(ctx context.Context, userUUID string) ([]Template, error) {
