@@ -37,7 +37,6 @@ const TemplateActionMenu = (props: Props) => {
     await updateTemplateAPI.post({
       name,
       subject: props.template.Subject,
-      preview_text: props.template.PreviewText,
       html_body: props.template.HTMLBody,
     });
     if (updateTemplateAPI.response.ok) {

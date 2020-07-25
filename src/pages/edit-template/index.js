@@ -38,7 +38,6 @@ const EditTemplatePage = () => {
       const updatedTemplate = await updateTemplateAPI.post({
         name: template.Name,
         subject: template.Subject,
-        preview_text: template.PreviewText,
         html_body: template.HTMLBody,
       });
 

@@ -25,19 +25,12 @@ const TemplateEditor = (props: Props) => {
   const [css] = useStyletron();
   const inputRef = React.useRef(null);
   const [subject, setSubject] = React.useState(props.template.Subject);
-  const [previewText, setPreviewText] = React.useState(
-    props.template.PreviewText || ""
-  );
   const [html, setHTML] = React.useState(props.template.HTMLBody);
 
   const onTemplateEdit = React.useCallback(debounce(props.onSave, 1000), []);
 
   const isDirty = () =>
-    !(
-      props.template.Subject === subject &&
-      props.template.PreviewText === (previewText || null) &&
-      props.template.HTMLBody === html
-    );
+    !(props.template.Subject === subject && props.template.HTMLBody === html);
 
   return (
     <div className={css({ display: "flex", flexDirection: "column", flex: 1 })}>
@@ -72,7 +65,6 @@ const TemplateEditor = (props: Props) => {
             onTemplateEdit({
               ...props.template,
               Subject: subject,
-              PreviewText: previewText || null,
               HTMLBody: updatedHTML,
             });
 
@@ -102,22 +94,6 @@ const TemplateEditor = (props: Props) => {
           onTemplateEdit({
             ...props.template,
             Subject: e.target.value,
-            PreviewText: previewText || null,
-            HTMLBody: html,
-          });
-        }}
-      />
-      <Spacer8 />
-      <Input
-        size={InputSIZE.compact}
-        placeholder="Preview Text"
-        value={previewText}
-        onChange={(e) => {
-          setPreviewText(e.target.value);
-          onTemplateEdit({
-            ...props.template,
-            Subject: subject,
-            PreviewText: previewText || null,
             HTMLBody: html,
           });
         }}
@@ -131,7 +107,6 @@ const TemplateEditor = (props: Props) => {
           onTemplateEdit({
             ...props.template,
             Subject: subject,
-            PreviewText: previewText || null,
             HTMLBody: e.target.value,
           });
         }}

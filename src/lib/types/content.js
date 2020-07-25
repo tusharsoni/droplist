@@ -4,6 +4,5 @@ export type Template = {
   UpdatedAt: string,
   Name: string,
   Subject: string,
-  PreviewText?: ?string,
   HTMLBody: string,
 };
