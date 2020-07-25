@@ -30,12 +30,7 @@ const TemplateEditor = (props: Props) => {
   );
   const [html, setHTML] = React.useState(props.template.HTMLBody);
 
-  const onTemplateEdit = React.useCallback(
-    debounce((template: Template) => {
-      props.onSave(template);
-    }, 1000),
-    [props.template]
-  );
+  const onTemplateEdit = React.useCallback(debounce(props.onSave, 1000), []);
 
   const isDirty = () =>
     !(
@@ -73,7 +68,12 @@ const TemplateEditor = (props: Props) => {
               html.substring(0, caretPos) + snippet + html.substring(caretPos);
 
             setHTML(updatedHTML);
-            onTemplateEdit({ ...props.template, HTMLBody: updatedHTML });
+            onTemplateEdit({
+              ...props.template,
+              Subject: subject,
+              PreviewText: previewText || null,
+              HTMLBody: updatedHTML,
+            });
 
             inputRef.current.focus();
           }}
@@ -101,6 +101,8 @@ const TemplateEditor = (props: Props) => {
           onTemplateEdit({
             ...props.template,
             Subject: e.target.value,
+            PreviewText: previewText || null,
+            HTMLBody: html,
           });
         }}
       />
@@ -113,7 +115,9 @@ const TemplateEditor = (props: Props) => {
           setPreviewText(e.target.value);
           onTemplateEdit({
             ...props.template,
-            PreviewText: e.target.value || null,
+            Subject: subject,
+            PreviewText: previewText || null,
+            HTMLBody: html,
           });
         }}
       />
@@ -123,7 +127,12 @@ const TemplateEditor = (props: Props) => {
         value={html}
         onChange={(e) => {
           setHTML(e.target.value);
-          onTemplateEdit({ ...props.template, HTMLBody: e.target.value });
+          onTemplateEdit({
+            ...props.template,
+            Subject: subject,
+            PreviewText: previewText || null,
+            HTMLBody: e.target.value,
+          });
         }}
         placeholder="Write your email HTML here"
         overrides={{
