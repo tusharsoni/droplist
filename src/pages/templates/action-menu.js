@@ -17,6 +17,7 @@ import {
 } from "baseui/modal";
 import { Input } from "baseui/input";
 import useFetch from "use-http";
+import { KIND as NotificationKind, Notification } from "baseui/notification";
 
 type Props = {
   template: Template,
@@ -38,8 +39,10 @@ const TemplateActionMenu = (props: Props) => {
       preview_text: props.template.PreviewText,
       html_body: props.template.HTMLBody,
     });
-    setIsRenameModalOpen(false);
-    props.onUpdate();
+    if (updateTemplateAPI.response.ok) {
+      setIsRenameModalOpen(false);
+      props.onUpdate();
+    }
   }, [name, props, updateTemplateAPI]);
 
   return (
@@ -80,7 +83,7 @@ const TemplateActionMenu = (props: Props) => {
         isOpen={isRenameModalOpen}
         size={SIZE.default}
         role={ROLE.dialog}
-        closeable
+        closeable={!updateTemplateAPI.loading}
         autoFocus
       >
         <ModalHeader>Rename Template</ModalHeader>
@@ -93,13 +96,26 @@ const TemplateActionMenu = (props: Props) => {
           />
         </ModalBody>
         <ModalFooter>
+          {updateTemplateAPI.error && (
+            <Notification
+              kind={NotificationKind.negative}
+              overrides={{
+                Body: { style: { textAlign: "left", width: "auto" } },
+              }}
+            >
+              Failed to save changes. Please try again.
+            </Notification>
+          )}
           <ModalButton
             kind={KIND.tertiary}
+            disabled={updateTemplateAPI.loading}
             onClick={() => setIsRenameModalOpen(false)}
           >
             Cancel
           </ModalButton>
-          <ModalButton onClick={onRename}>Save Changes</ModalButton>
+          <ModalButton isLoading={updateTemplateAPI.loading} onClick={onRename}>
+            Save Changes
+          </ModalButton>
         </ModalFooter>
       </Modal>
     </>
