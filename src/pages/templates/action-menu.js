@@ -27,6 +27,7 @@ type Props = {
 const TemplateActionMenu = (props: Props) => {
   const [css] = useStyletron();
   const [isRenameModalOpen, setIsRenameModalOpen] = React.useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [name, setName] = React.useState(props.template.Name);
   const updateTemplateAPI = useFetch<Template>(
     `/content/templates/${props.template.UUID}`
@@ -44,6 +45,14 @@ const TemplateActionMenu = (props: Props) => {
       props.onUpdate();
     }
   }, [name, props, updateTemplateAPI]);
+
+  const onDelete = React.useCallback(async () => {
+    await updateTemplateAPI.delete();
+    if (updateTemplateAPI.response.ok) {
+      setIsDeleteModalOpen(false);
+      props.onUpdate();
+    }
+  }, [props, updateTemplateAPI]);
 
   return (
     <>
@@ -67,6 +76,8 @@ const TemplateActionMenu = (props: Props) => {
             onItemSelect={({ item }) => {
               if (item.id === "rename") {
                 setIsRenameModalOpen(true);
+              } else if (item.id === "delete") {
+                setIsDeleteModalOpen(true);
               }
               close();
             }}
@@ -81,7 +92,6 @@ const TemplateActionMenu = (props: Props) => {
       <Modal
         onClose={() => setIsRenameModalOpen(false)}
         isOpen={isRenameModalOpen}
-        size={SIZE.default}
         role={ROLE.dialog}
         closeable={!updateTemplateAPI.loading}
         autoFocus
@@ -115,6 +125,39 @@ const TemplateActionMenu = (props: Props) => {
           </ModalButton>
           <ModalButton isLoading={updateTemplateAPI.loading} onClick={onRename}>
             Save Changes
+          </ModalButton>
+        </ModalFooter>
+      </Modal>
+
+      <Modal
+        onClose={() => setIsDeleteModalOpen(false)}
+        isOpen={isDeleteModalOpen}
+        role={ROLE.dialog}
+        closeable={!updateTemplateAPI.loading}
+        autoFocus
+      >
+        <ModalHeader>Confirm Delete</ModalHeader>
+        <ModalBody>Are you sure? You cannot undo this action.</ModalBody>
+        <ModalFooter>
+          {updateTemplateAPI.error && (
+            <Notification
+              kind={NotificationKind.negative}
+              overrides={{
+                Body: { style: { textAlign: "left", width: "auto" } },
+              }}
+            >
+              Failed to delete the template. Please try again.
+            </Notification>
+          )}
+          <ModalButton
+            kind={KIND.tertiary}
+            disabled={updateTemplateAPI.loading}
+            onClick={() => setIsDeleteModalOpen(false)}
+          >
+            Cancel
+          </ModalButton>
+          <ModalButton isLoading={updateTemplateAPI.loading} onClick={onDelete}>
+            Confirm & Delete
           </ModalButton>
         </ModalFooter>
       </Modal>
