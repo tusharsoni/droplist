@@ -12,10 +12,11 @@ import { Link } from "react-router-dom";
 import { Spacer40, Spacer8 } from "../../style-guide/spacer";
 import { Table } from "baseui/table-semantic";
 import { DateTime } from "luxon";
+import TemplateActionMenu from "./action-menu";
 
 const TemplatesPage = () => {
   const [css] = useStyletron();
-  const { loading, error, data: templates } = useFetch<Template[]>(
+  const { get, loading, error, data: templates } = useFetch<Template[]>(
     "/content/templates",
     {},
     []
@@ -83,15 +84,7 @@ const TemplatesPage = () => {
               paddingTop: "20px",
             })}
           >
-            <Link
-              className={css({ textDecoration: "none" })}
-              to={`/templates/${t.UUID}/edit`}
-            >
-              <Button size={SIZE.compact} kind={KIND.secondary}>
-                Edit
-              </Button>
-            </Link>
-
+            <TemplateActionMenu template={t} onUpdate={get} />
             <Spacer8 />
             <Button size={SIZE.compact} kind={KIND.secondary}>
               Create Campaign
