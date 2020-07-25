@@ -62,8 +62,9 @@ const TemplateEditor = (props: Props) => {
             }
 
             const { snippet } = value[0];
+            const input = inputRef.current;
 
-            const caretPos = inputRef.current.selectionStart;
+            const caretPos = input ? input.selectionStart : 0;
             const updatedHTML =
               html.substring(0, caretPos) + snippet + html.substring(caretPos);
 
@@ -75,7 +76,7 @@ const TemplateEditor = (props: Props) => {
               HTMLBody: updatedHTML,
             });
 
-            inputRef.current.focus();
+            input && input.focus();
           }}
         />
 

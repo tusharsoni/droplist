@@ -84,7 +84,9 @@ const EditTemplatePage = () => {
             template={template}
             saving={updateTemplateAPI.loading}
             saveError={Boolean(updateTemplateAPI.error)}
-            onSave={onHTMLEdit}
+            onSave={(template) => {
+              onHTMLEdit(template);
+            }}
           />
         )}
       </div>
