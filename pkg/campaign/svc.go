@@ -126,7 +126,6 @@ func (s *svc) TestCampaign(ctx context.Context, campaignUUID string, recipients 
 		params := map[string]interface{}{
 			"Contact":           contactParams,
 			"Subject":           tmpl.Subject,
-			"PreviewText":       tmpl.PreviewText,
 			"UnsubscribeURL":    s.audience.UnsubscribeURL(ctx, contact.UUID),
 			"OpenEventImageURL": s.GetOpenEventImageURL(campaign.UUID, contact.UUID),
 		}
@@ -207,7 +206,6 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 		params := map[string]interface{}{
 			"Contact":           contactParams,
 			"Subject":           tmpl.Subject,
-			"PreviewText":       tmpl.PreviewText,
 			"UnsubscribeURL":    s.audience.UnsubscribeURL(ctx, contact.UUID),
 			"OpenEventImageURL": s.GetOpenEventImageURL(campaign.UUID, contact.UUID),
 		}
