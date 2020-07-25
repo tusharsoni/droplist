@@ -8,11 +8,11 @@ import type { Template } from "../../lib/types/content";
 import { useStyletron } from "baseui";
 import { Display3, Label2, Paragraph3 } from "baseui/typography";
 import { Button, KIND, SIZE } from "baseui/button";
-import { Link } from "react-router-dom";
 import { Spacer40, Spacer8 } from "../../style-guide/spacer";
 import { Table } from "baseui/table-semantic";
 import { DateTime } from "luxon";
 import TemplateActionMenu from "./action-menu";
+import CreateTemplateButton from "./create-button";
 
 const TemplatesPage = () => {
   const [css] = useStyletron();
@@ -46,16 +46,7 @@ const TemplatesPage = () => {
         <div>
           <Display3>Templates</Display3>
         </div>
-        <div className={css({ display: "flex" })}>
-          <Link
-            className={css({ textDecoration: "none" })}
-            to={"/audience/contacts/import"}
-          >
-            <Button kind={KIND.secondary} size={SIZE.compact}>
-              Create Template
-            </Button>
-          </Link>
-        </div>
+        <CreateTemplateButton />
       </div>
       <Spacer40 />
       <Table
