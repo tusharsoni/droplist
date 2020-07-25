@@ -12,6 +12,7 @@ type Repo interface {
 	AddTemplate(ctx context.Context, template *Template) error
 	GetTemplateByUUID(ctx context.Context, uuid string) (*Template, error)
 	FindTemplatesByCreatedBy(ctx context.Context, userUUID string) ([]Template, error)
+	DeleteTemplateByUUID(ctx context.Context, uuid string) error
 }
 
 func NewSQLRepo(db *gorm.DB) Repo {
@@ -64,4 +65,18 @@ func (r *sqlRepo) FindTemplatesByCreatedBy(ctx context.Context, userUUID string)
 	}
 
 	return templates, nil
+}
+
+func (r *sqlRepo) DeleteTemplateByUUID(ctx context.Context, uuid string) error {
+	err := csql.GetConn(ctx, r.db).
+		Where(&Template{UUID: uuid}).
+		Delete(&Template{}).
+		Error
+	if err != nil {
+		return cerror.New(err, "failed to delete template", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	return nil
 }

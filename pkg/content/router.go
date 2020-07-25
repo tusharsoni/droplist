@@ -81,7 +81,7 @@ func NewUpdateTemplateRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult
 func (ro *Router) HandleUpdateTemplate(w http.ResponseWriter, r *http.Request) {
 	var (
 		templateUUID = mux.Vars(r)["uuid"]
-		body CreateTemplateParams
+		body         CreateTemplateParams
 	)
 
 	if !ro.req.Read(w, r, &body) {
@@ -143,6 +143,28 @@ func (ro *Router) HandleGetTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ro.resp.OK(w, template)
+}
+
+func NewDeleteTemplateRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/content/templates/{uuid}",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodDelete},
+		Handler:         http.HandlerFunc(ro.HandleDeleteTemplate),
+	}}
+}
+
+func (ro *Router) HandleDeleteTemplate(w http.ResponseWriter, r *http.Request) {
+	templateUUID := mux.Vars(r)["uuid"]
+
+	err := ro.svc.DeleteTemplate(r.Context(), templateUUID)
+	if err != nil {
+		ro.logger.Error("Failed to delete template", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, nil)
 }
 
 func NewPreviewTemplateHTMLRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {

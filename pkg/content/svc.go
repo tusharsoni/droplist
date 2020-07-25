@@ -18,6 +18,7 @@ type CreateTemplateParams struct {
 type Svc interface {
 	CreateTemplate(ctx context.Context, userUUID string, p CreateTemplateParams) (*Template, error)
 	GetTemplate(ctx context.Context, uuid string) (*Template, error)
+	DeleteTemplate(ctx context.Context, uuid string) error
 	UpdateTemplate(ctx context.Context, uuid string, p CreateTemplateParams) (*Template, error)
 	ListUserTemplates(ctx context.Context, userUUID string) ([]Template, error)
 	GeneratePreviewHTML(ctx context.Context, templateUUID string) (string, error)
@@ -59,6 +60,10 @@ func (s *svc) CreateTemplate(ctx context.Context, userUUID string, p CreateTempl
 
 func (s *svc) GetTemplate(ctx context.Context, uuid string) (*Template, error) {
 	return s.repo.GetTemplateByUUID(ctx, uuid)
+}
+
+func (s *svc) DeleteTemplate(ctx context.Context, uuid string) error {
+	return s.repo.DeleteTemplateByUUID(ctx, uuid)
 }
 
 func (s *svc) UpdateTemplate(ctx context.Context, uuid string, p CreateTemplateParams) (*Template, error) {
