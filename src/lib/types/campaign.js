@@ -9,3 +9,13 @@ export type Campaign = {
   FromEmail: string,
   State: "DRAFT" | "PUBLISHED",
 };
+
+export type CampaignStats = {
+  Queued: number,
+  Sent: number,
+  Failed: number,
+  Opens: number,
+  Clicks: number,
+  OpenRate: number,
+  ClickRate: number,
+};
