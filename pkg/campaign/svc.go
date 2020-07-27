@@ -23,11 +23,13 @@ type CreateCampaignParams struct {
 
 type Svc interface {
 	GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, error)
+	ListUserCampaigns(ctx context.Context, userUUID string) ([]Campaign, error)
 	CreateDraftCampaign(ctx context.Context, userUUID string, p CreateCampaignParams) (*Campaign, error)
 	PublishCampaign(ctx context.Context, campaignUUID string) error
 	CompleteSendTask(ctx context.Context, taskUUID, status string) error
 	TestCampaign(ctx context.Context, campaignUUID string, recipients []string) error
 	LogEvent(ctx context.Context, campaignUUID, contactUUID, event string) error
+	CampaignStats(ctx context.Context, uuids []string) (map[string]Stats, error)
 }
 
 type SvcParams struct {
@@ -60,6 +62,10 @@ type svc struct {
 
 func (s *svc) GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, error) {
 	return s.repo.GetCampaignByUUID(ctx, campaignUUID)
+}
+
+func (s *svc) ListUserCampaigns(ctx context.Context, userUUID string) ([]Campaign, error) {
+	return s.repo.FindCampaignsByCreatedBy(ctx, userUUID)
 }
 
 func (s *svc) CreateDraftCampaign(ctx context.Context, userUUID string, p CreateCampaignParams) (*Campaign, error) {
@@ -226,7 +232,7 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 			FromEmail:    campaign.FromEmail,
 			Subject:      tmpl.Subject,
 			HTMLBody:     tmpl.HTMLBody,
-			ToEmail:      contact.Email,
+			ToEmail:      "success@simulator.amazonses.com",
 			Params:       string(paramsJ),
 			Status:       SendTaskStatusQueued,
 		})
@@ -284,6 +290,10 @@ func (s *svc) LogEvent(ctx context.Context, campaignUUID, contactUUID, event str
 		ContactUUID:  contactUUID,
 		Event:        event,
 	})
+}
+
+func (s *svc) CampaignStats(ctx context.Context, uuids []string) (map[string]Stats, error) {
+	return s.repo.GetStats(ctx, uuids)
 }
 
 func (s *svc) GetOpenEventImageURL(campaignUUID, contactUUID string) string {

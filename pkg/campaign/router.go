@@ -45,7 +45,7 @@ func NewRouter(p RouterParams) *Router {
 
 func NewGetCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:            "/api/campaigns/{uuid}",
+		Path:            "/api/campaigns/{uuid:.{36}}",
 		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
 		Methods:         []string{http.MethodGet},
 		Handler:         http.HandlerFunc(ro.HandleGetCampaign),
@@ -222,4 +222,57 @@ func (ro *Router) HandleOpenEventImage(w http.ResponseWriter, r *http.Request) {
 		ro.resp.InternalErr(w)
 		return
 	}
+}
+
+func NewCampaignStatsRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/campaigns/stats",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodPost},
+		Handler:         http.HandlerFunc(ro.HandleCampaignStats),
+	}}
+}
+
+func (ro *Router) HandleCampaignStats(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		CampaignUUIDs []string `json:"campaign_uuids" valid:"required"`
+	}
+
+	if !ro.req.Read(w, r, &body) {
+		return
+	}
+
+	stats, err := ro.svc.CampaignStats(r.Context(), body.CampaignUUIDs)
+	if err != nil {
+		ro.logger.Error("Failed to get campaign stats", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, stats)
+}
+
+func NewListUserCampaignsRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/campaigns",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodGet},
+		Handler:         http.HandlerFunc(ro.HandleListUserCampaigns),
+	}}
+}
+
+func (ro *Router) HandleListUserCampaigns(w http.ResponseWriter, r *http.Request) {
+	var (
+		ctx      = r.Context()
+		userUUID = cauth.GetCurrentUserUUID(ctx)
+	)
+
+	campaigns, err := ro.svc.ListUserCampaigns(ctx, userUUID)
+	if err != nil {
+		ro.logger.Error("Failed to list user campaigns", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, campaigns)
 }

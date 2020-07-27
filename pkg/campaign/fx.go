@@ -14,4 +14,6 @@ var Fx = fx.Provide(
 	NewTestCampaignRoute,
 	NewOpenEventImageRoute,
 	NewClickEventRoute,
+	NewCampaignStatsRoute,
+	NewListUserCampaignsRoute,
 )
