@@ -3,20 +3,15 @@
 import * as React from "react";
 import { useStyletron } from "baseui";
 
-export const Spacer8 = () => {
+export const Spacer = (props: { size: number }) => {
   const [css] = useStyletron();
+  const size = `${props.size}px`;
 
-  return <div className={css({ height: "8px", width: "8px" })} />;
+  return <div className={css({ height: size, width: size })} />;
 };
 
-export const Spacer20 = () => {
-  const [css] = useStyletron();
+export const Spacer8 = () => <Spacer size={8} />;
 
-  return <div className={css({ height: "20px", width: "20px" })} />;
-};
+export const Spacer20 = () => <Spacer size={20} />;
 
-export const Spacer40 = () => {
-  const [css] = useStyletron();
-
-  return <div className={css({ height: "40px", width: "40px" })} />;
-};
+export const Spacer40 = () => <Spacer size={40} />;
