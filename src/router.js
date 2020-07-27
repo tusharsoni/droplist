@@ -7,6 +7,7 @@ import TemplatesPage from "./pages/templates";
 import CampaignsPage from "./pages/campaigns";
 import ImportContactsPage from "./pages/import-contacts";
 import EditTemplatePage from "./pages/edit-template";
+import CreateCampaignPage from "./pages/create-campaign";
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -25,7 +26,8 @@ const AppRouter = () => (
       <Route exact path="/templates" component={TemplatesPage} />
       <Route exact path="/templates/:uuid/edit" component={EditTemplatePage} />
 
-      <Route path="/campaigns" component={CampaignsPage} />
+      <Route exact path="/campaigns" component={CampaignsPage} />
+      <Route exact path="/campaigns/create" component={CreateCampaignPage} />
     </Switch>
   </BrowserRouter>
 );

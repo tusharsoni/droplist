@@ -7,8 +7,7 @@ import { StyledSpinnerNext as Spinner } from "baseui/spinner";
 import type { Template } from "../../lib/types/content";
 import { useStyletron } from "baseui";
 import { Display3 } from "baseui/typography";
-import { Button, KIND, SIZE } from "baseui/button";
-import { Spacer40, Spacer8 } from "../../style-guide/spacer";
+import { Spacer40 } from "../../style-guide/spacer";
 import TemplateActionMenu from "./action-menu";
 import CreateTemplateButton from "./create-button";
 import { ListItem, ListItemLabel } from "baseui/list";
@@ -53,13 +52,7 @@ const TemplatesPage = () => {
           <ListItem
             key={template.UUID}
             endEnhancer={() => (
-              <div className={css({ display: "flex" })}>
-                <TemplateActionMenu template={template} onUpdate={get} />
-                <Spacer8 />
-                <Button size={SIZE.compact} kind={KIND.secondary}>
-                  Create Campaign
-                </Button>
-              </div>
+              <TemplateActionMenu template={template} onUpdate={get} />
             )}
           >
             <ListItemLabel description={template.Subject}>
