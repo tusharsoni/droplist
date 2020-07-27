@@ -43,6 +43,28 @@ func NewRouter(p RouterParams) *Router {
 	}
 }
 
+func NewGetCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/campaigns/{uuid}",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodGet},
+		Handler:         http.HandlerFunc(ro.HandleGetCampaign),
+	}}
+}
+
+func (ro *Router) HandleGetCampaign(w http.ResponseWriter, r *http.Request) {
+	campaignUUID := mux.Vars(r)["uuid"]
+
+	campaign, err := ro.svc.GetCampaign(r.Context(), campaignUUID)
+	if err != nil {
+		ro.logger.Error("Failed to get campaign", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, campaign)
+}
+
 func NewCreateDraftCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
 		Path:            "/api/campaigns",

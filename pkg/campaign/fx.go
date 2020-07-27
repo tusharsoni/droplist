@@ -8,6 +8,7 @@ var Fx = fx.Provide(
 	NewSvc,
 
 	NewRouter,
+	NewGetCampaignRoute,
 	NewCreateDraftCampaignRoute,
 	NewPublishCampaignRoute,
 	NewTestCampaignRoute,
