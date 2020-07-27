@@ -90,8 +90,6 @@ const CreateCampaignPage = () => {
         <FormControl label="Pick a Template">
           <TemplatePicker onSelect={setTemplate} />
         </FormControl>
-
-        <Spacer40 />
         {createCampaignAPI.error && (
           <Notification
             kind={NotificationKind.negative}

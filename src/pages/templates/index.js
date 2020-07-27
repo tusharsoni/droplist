@@ -47,7 +47,7 @@ const TemplatesPage = () => {
         <CreateTemplateButton />
       </div>
       <Spacer40 />
-      <div>
+      <ul className={css({ padding: 0, margin: 0 })}>
         {templates.map((template: Template) => (
           <ListItem
             key={template.UUID}
@@ -60,7 +60,7 @@ const TemplatesPage = () => {
             </ListItemLabel>
           </ListItem>
         ))}
-      </div>
+      </ul>
     </PageLayout>
   );
 };
