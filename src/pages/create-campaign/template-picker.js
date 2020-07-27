@@ -6,11 +6,11 @@ import { StyledSpinnerNext as Spinner } from "baseui/spinner";
 import { useStyletron } from "baseui";
 import { Label4, LabelSmall } from "baseui/typography";
 import { Spacer20, Spacer8 } from "../../style-guide/spacer";
-import TemplatePreview from "./template-preview";
 import { Checkbox } from "baseui/checkbox";
 import { Button, SIZE, KIND } from "baseui/button";
 import { ChevronLeft, ChevronRight } from "baseui/icon";
 import { KIND as NotificationKind, Notification } from "baseui/notification";
+import TemplatePreview from "../../components/template-preview";
 
 type Props = {
   onSelect: (template: Template) => void,
