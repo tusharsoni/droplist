@@ -16,4 +16,5 @@ var Fx = fx.Provide(
 	NewClickEventRoute,
 	NewCampaignStatsRoute,
 	NewListUserCampaignsRoute,
+	NewDeleteCampaignRoute,
 )

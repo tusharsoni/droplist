@@ -26,6 +26,7 @@ type Repo interface {
 	GetCampaignByUUID(ctx context.Context, uuid string) (*Campaign, error)
 	GetStats(ctx context.Context, uuids []string) (map[string]Stats, error)
 	FindCampaignsByCreatedBy(ctx context.Context, createdBy string) ([]Campaign, error)
+	DeleteCampaignByUUID(ctx context.Context, uuid string) error
 
 	AddSendTask(ctx context.Context, sendTask *SendTask) error
 	GetSendTaskByUUID(ctx context.Context, uuid string) (*SendTask, error)
@@ -196,4 +197,18 @@ func (r *sqlRepo) GetStats(ctx context.Context, uuids []string) (map[string]Stat
 	}
 
 	return stats, nil
+}
+
+func (r *sqlRepo) DeleteCampaignByUUID(ctx context.Context, uuid string) error {
+	err := csql.GetConn(ctx, r.db).
+		Where(&Campaign{UUID: uuid}).
+		Delete(&Campaign{}).
+		Error
+	if err != nil {
+		return cerror.New(err, "failed to delete campaign", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	return nil
 }

@@ -24,6 +24,7 @@ type CreateCampaignParams struct {
 type Svc interface {
 	GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, error)
 	ListUserCampaigns(ctx context.Context, userUUID string) ([]Campaign, error)
+	DeleteCampaign(ctx context.Context, uuid string) error
 	CreateDraftCampaign(ctx context.Context, userUUID string, p CreateCampaignParams) (*Campaign, error)
 	PublishCampaign(ctx context.Context, campaignUUID string) error
 	CompleteSendTask(ctx context.Context, taskUUID, status string) error
@@ -66,6 +67,30 @@ func (s *svc) GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, 
 
 func (s *svc) ListUserCampaigns(ctx context.Context, userUUID string) ([]Campaign, error) {
 	return s.repo.FindCampaignsByCreatedBy(ctx, userUUID)
+}
+
+func (s *svc) DeleteCampaign(ctx context.Context, uuid string) error {
+	campaign, err := s.GetCampaign(ctx, uuid)
+	if err != nil {
+		return cerror.New(err, "failed to get campaign", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	if campaign.State == StatePublished {
+		return cerror.New(nil, "published campaign cannot be deleted", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	err = s.repo.DeleteCampaignByUUID(ctx, uuid)
+	if err != nil {
+		return cerror.New(err, "failed to delete campaign", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	return nil
 }
 
 func (s *svc) CreateDraftCampaign(ctx context.Context, userUUID string, p CreateCampaignParams) (*Campaign, error) {

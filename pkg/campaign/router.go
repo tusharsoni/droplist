@@ -276,3 +276,25 @@ func (ro *Router) HandleListUserCampaigns(w http.ResponseWriter, r *http.Request
 
 	ro.resp.OK(w, campaigns)
 }
+
+func NewDeleteCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/campaigns/{uuid}",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodDelete},
+		Handler:         http.HandlerFunc(ro.HandleDeleteCampaign),
+	}}
+}
+
+func (ro *Router) HandleDeleteCampaign(w http.ResponseWriter, r *http.Request) {
+	campaignUUID := mux.Vars(r)["uuid"]
+
+	err := ro.svc.DeleteCampaign(r.Context(), campaignUUID)
+	if err != nil {
+		ro.logger.Error("Failed to delete campaign", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, nil)
+}
