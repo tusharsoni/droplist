@@ -2,19 +2,24 @@
 
 import React from "react";
 import PageLayout from "../../style-guide/page-layout";
-import { Spacer40 } from "../../style-guide/spacer";
+import { Spacer40, Spacer8 } from "../../style-guide/spacer";
 import AudienceTable from "./table";
 import { Pagination } from "baseui/pagination";
 import useFetch from "use-http";
 import { StyledSpinnerNext as Spinner } from "baseui/spinner";
 import type { AudienceSummary, Contact } from "../../lib/types/audience";
-import { useHistory, useLocation } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
+import { Display3, Label1 } from "baseui/typography";
+import { useStyletron } from "baseui";
+import { Button, KIND, SIZE } from "baseui/button";
+import PeopleSearchSvg from "../../style-guide/illustrations/people-search";
 
 const CONTACTS_PER_PAGE = 20;
 
 const AudiencePage = () => {
   const history = useHistory();
   const location = useLocation();
+  const [css] = useStyletron();
   const queryParams = new URLSearchParams(location.search);
   const page = parseInt(queryParams.get("page"), 10) || 1;
 
@@ -53,7 +58,37 @@ const AudiencePage = () => {
 
   return (
     <PageLayout>
-      <AudienceTable summary={summary} contacts={contacts} />
+      {summary.TotalContacts === 0 && (
+        <div>
+          <Display3>Audience</Display3>
+          <Spacer40 />
+          <div
+            className={css({
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            })}
+          >
+            <PeopleSearchSvg height={250} />
+            <Spacer40 />
+            <Label1>You don't have any contacts yet</Label1>
+            <Spacer8 />
+            <Link
+              className={css({ textDecoration: "none" })}
+              to={"/audience/contacts/import"}
+            >
+              <Button kind={KIND.secondary} size={SIZE.compact}>
+                Import Contacts
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {summary.TotalContacts > 0 && (
+        <AudienceTable summary={summary} contacts={contacts} />
+      )}
       {summary.TotalContacts > CONTACTS_PER_PAGE && (
         <>
           <Spacer40 />
