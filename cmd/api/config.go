@@ -3,6 +3,7 @@ package main
 import (
 	"droplist/pkg/audience"
 	"droplist/pkg/campaign"
+	"droplist/pkg/profile"
 	"net/url"
 	"os"
 
@@ -23,6 +24,7 @@ type Config struct {
 	Audience  audience.Config
 	Campaign  campaign.Config
 	AWSMailer cmailer.AWSConfig
+	Profile   profile.Config
 }
 
 func NewConfig() (Config, error) {
@@ -54,6 +56,9 @@ func NewConfig() (Config, error) {
 			Region:          "us-east-1",
 			AccessKeyId:     "AKIAIKIZY7B54QZ5M4UA",
 			SecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
+		},
+		Profile: profile.Config{
+			Passphrase: os.Getenv("DROPLIST_PASSPHRASE"),
 		},
 	}, nil
 }
