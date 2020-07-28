@@ -75,7 +75,9 @@ func NewCreateDraftCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteR
 }
 
 func (ro *Router) HandleCreateDraftCampaign(w http.ResponseWriter, r *http.Request) {
-	var body CreateCampaignParams
+	var body struct{
+		Name string `json:"name" valid:"required"`
+	}
 
 	if !ro.req.Read(w, r, &body) {
 		return
@@ -84,7 +86,7 @@ func (ro *Router) HandleCreateDraftCampaign(w http.ResponseWriter, r *http.Reque
 	ctx := r.Context()
 	userUUID := cauth.GetCurrentUserUUID(ctx)
 
-	campaign, err := ro.svc.CreateDraftCampaign(ctx, userUUID, body)
+	campaign, err := ro.svc.CreateDraftCampaign(ctx, userUUID, body.Name)
 	if err != nil {
 		ro.logger.Error("Failed to create draft campaign", err)
 		ro.resp.InternalErr(w)
@@ -105,7 +107,7 @@ func NewUpdateCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult
 
 func (ro *Router) HandleUpdateCampaign(w http.ResponseWriter, r *http.Request) {
 	var (
-		body CreateCampaignParams
+		body UpdateCampaignParams
 		uuid = mux.Vars(r)["uuid"]
 	)
 

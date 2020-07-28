@@ -13,7 +13,7 @@ import (
 	"go.uber.org/fx"
 )
 
-type CreateCampaignParams struct {
+type UpdateCampaignParams struct {
 	Segment      *audience.CreateSegmentParams `json:"segment" valid:"optional"`
 	TemplateUUID string                        `json:"template_uuid" valid:"required,uuid"`
 	Name         string                        `json:"name" valid:"required"`
@@ -24,9 +24,9 @@ type CreateCampaignParams struct {
 type Svc interface {
 	GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, error)
 	ListUserCampaigns(ctx context.Context, userUUID string) ([]Campaign, error)
-	UpdateCampaign(ctx context.Context, uuid string, p CreateCampaignParams) (*Campaign, error)
+	UpdateCampaign(ctx context.Context, uuid string, p UpdateCampaignParams) (*Campaign, error)
 	DeleteCampaign(ctx context.Context, uuid string) error
-	CreateDraftCampaign(ctx context.Context, userUUID string, p CreateCampaignParams) (*Campaign, error)
+	CreateDraftCampaign(ctx context.Context, userUUID, name string) (*Campaign, error)
 	PublishCampaign(ctx context.Context, campaignUUID string) error
 	CompleteSendTask(ctx context.Context, taskUUID, status string) error
 	TestCampaign(ctx context.Context, campaignUUID string, recipients []string) error
@@ -70,7 +70,7 @@ func (s *svc) ListUserCampaigns(ctx context.Context, userUUID string) ([]Campaig
 	return s.repo.FindCampaignsByCreatedBy(ctx, userUUID)
 }
 
-func (s *svc) UpdateCampaign(ctx context.Context, uuid string, p CreateCampaignParams) (*Campaign, error) {
+func (s *svc) UpdateCampaign(ctx context.Context, uuid string, p UpdateCampaignParams) (*Campaign, error) {
 	campaign, err := s.GetCampaign(ctx, uuid)
 	if err != nil {
 		return nil, cerror.New(err, "failed to get campaign", map[string]interface{}{
@@ -123,30 +123,15 @@ func (s *svc) DeleteCampaign(ctx context.Context, uuid string) error {
 	return nil
 }
 
-func (s *svc) CreateDraftCampaign(ctx context.Context, userUUID string, p CreateCampaignParams) (*Campaign, error) {
-	var segmentP audience.CreateSegmentParams
-
-	if p.Segment != nil {
-		segmentP = *p.Segment
-	}
-
-	segment, err := s.audience.CreateSegment(ctx, segmentP)
-	if err != nil {
-		return nil, cerror.New(err, "failed to create segment", nil)
-	}
-
+func (s *svc) CreateDraftCampaign(ctx context.Context, userUUID, name string) (*Campaign, error) {
 	campaign := &Campaign{
-		UUID:         uuid.New().String(),
-		CreatedBy:    userUUID,
-		SegmentUUID:  segment.UUID,
-		TemplateUUID: p.TemplateUUID,
-		Name:         p.Name,
-		FromName:     p.FromName,
-		FromEmail:    p.FromEmail,
-		State:        StateDraft,
+		UUID:      uuid.New().String(),
+		CreatedBy: userUUID,
+		Name:      name,
+		State:     StateDraft,
 	}
 
-	err = s.repo.AddCampaign(ctx, campaign)
+	err := s.repo.AddCampaign(ctx, campaign)
 	if err != nil {
 		return nil, cerror.New(err, "failed to save campaign", nil)
 	}
