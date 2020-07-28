@@ -86,6 +86,11 @@ const AudienceTable = (props: Props) => {
             ),
           ];
         })}
+        overrides={{
+          TableBodyCell: {
+            style: { verticalAlign: "middle" },
+          },
+        }}
       />
     </>
   );

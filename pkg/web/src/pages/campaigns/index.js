@@ -130,6 +130,11 @@ const CampaignsPage = () => {
               ? formatStat(stats[campaign.UUID].ClickRate)
               : "--",
           ])}
+          overrides={{
+            TableBodyCell: {
+              style: { verticalAlign: "middle" },
+            },
+          }}
         />
       )}
     </PageLayout>
