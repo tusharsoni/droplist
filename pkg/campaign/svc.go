@@ -221,8 +221,8 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 		})
 	}
 
-	// todo: query all contacts from this segment instead of only the first 1000
-	contacts, err := s.audience.SegmentedContacts(ctx, campaign.CreatedBy, campaign.SegmentUUID, 1000, 0)
+	// todo: query all contacts from this segment instead of only the first 5000
+	contacts, err := s.audience.SegmentedContacts(ctx, campaign.CreatedBy, campaign.SegmentUUID, 5000, 0)
 	if err != nil {
 		return cerror.New(err, "failed to get segmented contacts", map[string]interface{}{
 			"userUUID":    campaign.CreatedBy,

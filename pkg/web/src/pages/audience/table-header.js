@@ -13,7 +13,7 @@ import {
   ModalHeader,
 } from "baseui/modal";
 import useFetch from "use-http";
-import { Link, useHistory } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 type Props = {
   totalContacts: number,
