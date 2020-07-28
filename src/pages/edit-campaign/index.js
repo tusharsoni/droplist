@@ -20,7 +20,8 @@ const EditCampaignPage = () => {
   const { uuid: campaignUUID } = useParams();
   const history = useHistory();
   const [css] = useStyletron();
-  const campaignAPI = useFetch<Campaign>(`/campaigns/${campaignUUID}`);
+  const getCampaignAPI = useFetch<Campaign>(`/campaigns/${campaignUUID}`);
+  const updateCampaignAPI = useFetch<Campaign>(`/campaigns/${campaignUUID}`);
 
   const [name, setName] = React.useState("");
   const [fromName, setFromName] = React.useState("");
@@ -29,9 +30,9 @@ const EditCampaignPage = () => {
 
   React.useEffect(() => {
     async function loadData() {
-      const campaign: Campaign = await campaignAPI.get();
+      const campaign: Campaign = await getCampaignAPI.get();
 
-      if (campaignAPI.response.ok) {
+      if (getCampaignAPI.response.ok) {
         setName(campaign.Name);
         setFromName(campaign.FromName);
         setFromEmail(campaign.FromEmail);
@@ -51,19 +52,27 @@ const EditCampaignPage = () => {
     if (!isValid()) {
       return;
     }
-    const campaign = await campaignAPI.post({
+    const campaign = await updateCampaignAPI.post({
       name,
       template_uuid: templateUUID,
       from_name: fromName,
       from_email: fromEmail,
     });
 
-    if (campaignAPI.response.ok) {
+    if (updateCampaignAPI.response.ok) {
       history.push(`/campaigns/${campaign.UUID}/review`);
     }
-  }, [campaignAPI, fromEmail, fromName, history, isValid, name, templateUUID]);
+  }, [
+    isValid,
+    updateCampaignAPI,
+    name,
+    templateUUID,
+    fromName,
+    fromEmail,
+    history,
+  ]);
 
-  if (campaignAPI.loading) {
+  if (getCampaignAPI.loading) {
     return (
       <PageLayout>
         <Spinner />
@@ -71,11 +80,11 @@ const EditCampaignPage = () => {
     );
   }
 
-  if (campaignAPI.error) {
+  if (getCampaignAPI.error) {
     return <PageLayout>Failed to load this page. Please try again.</PageLayout>;
   }
 
-  if (!campaignAPI.data) {
+  if (!getCampaignAPI.data) {
     return null;
   }
 
@@ -118,11 +127,11 @@ const EditCampaignPage = () => {
 
       <FormControl label="Pick a Template">
         <TemplatePicker
-          initialTemplateUUID={campaignAPI.data.TemplateUUID}
+          initialTemplateUUID={getCampaignAPI.data.TemplateUUID}
           onSelect={(template) => setTemplateUUID(template.UUID)}
         />
       </FormControl>
-      {campaignAPI.error && (
+      {updateCampaignAPI.error && (
         <Notification
           kind={NotificationKind.negative}
           overrides={{
@@ -135,10 +144,10 @@ const EditCampaignPage = () => {
       <div
         className={css({ display: "flex", justifyContent: "space-between" })}
       >
-        <DeleteCampaignButton campaign={campaignAPI.data} />
+        <DeleteCampaignButton campaign={getCampaignAPI.data} />
         <Button
-          disabled={!isValid() || campaignAPI.loading}
-          isLoading={campaignAPI.loading}
+          disabled={!isValid() || updateCampaignAPI.loading}
+          isLoading={updateCampaignAPI.loading}
           onClick={onSubmit}
         >
           Save Changes & Review
