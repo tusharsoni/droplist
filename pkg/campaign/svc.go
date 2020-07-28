@@ -2,11 +2,11 @@ package campaign
 
 import (
 	"context"
+	"droplist/pkg/audience"
+	"droplist/pkg/content"
 	"encoding/json"
 	"net/url"
 	"path"
-	"shoot/pkg/audience"
-	"shoot/pkg/content"
 
 	"github.com/google/uuid"
 	"github.com/tusharsoni/copper/cerror"

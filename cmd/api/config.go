@@ -1,10 +1,10 @@
 package main
 
 import (
+	"droplist/pkg/audience"
+	"droplist/pkg/campaign"
 	"net/url"
 	"os"
-	"shoot/pkg/audience"
-	"shoot/pkg/campaign"
 
 	"github.com/tusharsoni/copper/cerror"
 

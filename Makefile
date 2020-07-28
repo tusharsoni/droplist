@@ -1,5 +1,5 @@
-BINARY_NAME=shoot-api
-PKG=shoot/cmd/api
+BINARY_NAME=droplist-api
+PKG=droplist/cmd/api
 
 GO=go
 GOIMPORTS=goimports

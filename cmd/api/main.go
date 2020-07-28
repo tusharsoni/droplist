@@ -1,9 +1,9 @@
 package main
 
 import (
-	"shoot/pkg/audience"
-	"shoot/pkg/campaign"
-	"shoot/pkg/content"
+	"droplist/pkg/audience"
+	"droplist/pkg/campaign"
+	"droplist/pkg/content"
 
 	"github.com/tusharsoni/copper/cauth"
 	cauthanonymous "github.com/tusharsoni/copper/cauth/anonymous"

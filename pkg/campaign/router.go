@@ -75,7 +75,7 @@ func NewCreateDraftCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteR
 }
 
 func (ro *Router) HandleCreateDraftCampaign(w http.ResponseWriter, r *http.Request) {
-	var body struct{
+	var body struct {
 		Name string `json:"name" valid:"required"`
 	}
 

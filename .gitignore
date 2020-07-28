@@ -3,4 +3,4 @@ vendor/
 .DS_Store
 
 env
-shoot-api
+droplist-api
