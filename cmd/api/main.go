@@ -4,6 +4,7 @@ import (
 	"droplist/pkg/audience"
 	"droplist/pkg/campaign"
 	"droplist/pkg/content"
+	"droplist/pkg/web"
 
 	"github.com/tusharsoni/copper/cauth"
 	cauthanonymous "github.com/tusharsoni/copper/cauth/anonymous"
@@ -29,6 +30,7 @@ func main() {
 		audience.Fx,
 		campaign.Fx,
 		content.Fx,
+		web.Fx,
 
 		fx.Invoke(
 			cauth.RunMigrations,
