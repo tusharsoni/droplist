@@ -18,6 +18,7 @@ func NewSecrets(config Config) Secrets {
 	return &secrets{config: config}
 }
 
+// adapted from https://github.com/gtank/cryptopasta/blob/master/encrypt.go
 type secrets struct {
 	config Config
 }
