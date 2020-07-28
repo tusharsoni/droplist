@@ -94,6 +94,7 @@ const TemplateActionMenu = (props: Props) => {
         role={ROLE.dialog}
         closeable={!updateTemplateAPI.loading}
         autoFocus
+        unstable_ModalBackdropScroll={true}
       >
         <ModalHeader>Rename Template</ModalHeader>
         <ModalBody>
@@ -134,6 +135,7 @@ const TemplateActionMenu = (props: Props) => {
         role={ROLE.dialog}
         closeable={!updateTemplateAPI.loading}
         autoFocus
+        unstable_ModalBackdropScroll={true}
       >
         <ModalHeader>Confirm Delete</ModalHeader>
         <ModalBody>Are you sure? You cannot undo this action.</ModalBody>

@@ -49,6 +49,7 @@ const CreateTemplateButton = (props: Props) => {
         role={ROLE.dialog}
         closeable={!createTemplatesAPI.loading}
         autoFocus
+        unstable_ModalBackdropScroll={true}
       >
         <ModalHeader>Create Template</ModalHeader>
         <ModalBody>

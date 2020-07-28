@@ -84,6 +84,7 @@ const AudienceTableHeader = (props: Props) => {
         onClose={() => setShowConfirmModal(false)}
         isOpen={showConfirmModal}
         closeable={!deleteContactsAPI.loading}
+        unstable_ModalBackdropScroll={true}
       >
         <ModalHeader>
           {selectedCount === 1

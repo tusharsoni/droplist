@@ -49,6 +49,7 @@ const CreateCampaignButton = (props: Props) => {
         role={ROLE.dialog}
         closeable={!campaignsAPI.loading}
         autoFocus
+        unstable_ModalBackdropScroll={true}
       >
         <ModalHeader>Create Campaign</ModalHeader>
         <ModalBody>

@@ -31,6 +31,7 @@ const DeleteCampaignButton = (props: Props) => {
         onClose={() => setShowConfirmModal(false)}
         isOpen={showConfirmModal}
         closeable={!deleteCampaignAPI.loading}
+        unstable_ModalBackdropScroll={true}
       >
         <ModalHeader>Delete Campaign</ModalHeader>
         <ModalBody>
