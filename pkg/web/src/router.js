@@ -9,6 +9,7 @@ import ImportContactsPage from "./pages/import-contacts";
 import EditTemplatePage from "./pages/edit-template";
 import ReviewCampaignPage from "./pages/review-campaign";
 import EditCampaignPage from "./pages/edit-campaign";
+import ProfilePage from "./pages/profile";
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -16,6 +17,8 @@ const AppRouter = () => (
       <Route exact path="/">
         <Redirect to="/campaigns" />
       </Route>
+
+      <Route exact path="/profile" component={ProfilePage} />
 
       <Route exact path="/audience" component={AudiencePage} />
       <Route

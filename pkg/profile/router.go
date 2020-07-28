@@ -3,6 +3,9 @@ package profile
 import (
 	"net/http"
 
+	"github.com/jinzhu/gorm"
+	"github.com/tusharsoni/copper/cerror"
+
 	"github.com/tusharsoni/copper/cauth"
 	"github.com/tusharsoni/copper/chttp"
 	"github.com/tusharsoni/copper/clogger"
@@ -53,9 +56,14 @@ func (ro *Router) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
 	)
 
 	p, err := ro.svc.GetProfile(ctx, userUUID)
-	if err != nil {
+	if err != nil && !cerror.HasCause(err, gorm.ErrRecordNotFound) {
 		ro.logger.Error("Failed to get profile", err)
 		ro.resp.InternalErr(w)
+		return
+	}
+
+	if p == nil {
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 

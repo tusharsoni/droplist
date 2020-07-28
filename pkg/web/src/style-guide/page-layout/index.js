@@ -47,7 +47,6 @@ const PageLayout = (props: Props) => {
               <LogoSvg height={32} />
             </Link>
           }
-          appDisplayNameLink={"DropList"}
           mainNav={[
             {
               item: { label: "Audience", pathname: "/audience" },
@@ -69,6 +68,14 @@ const PageLayout = (props: Props) => {
             location.pathname.startsWith(navItem.item.pathname)
           }
           onNavItemSelect={() => {}}
+          username="DropList User"
+          userNav={[
+            {
+              item: { label: "AWS Settings", pathname: "/profile" },
+              mapItemToString: (item) => item.label,
+              mapItemToNode: (item) => <NavLink {...item} />,
+            },
+          ]}
         />
       </div>
 

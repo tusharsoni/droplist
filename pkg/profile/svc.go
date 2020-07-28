@@ -9,9 +9,9 @@ import (
 )
 
 type SaveProfileParams struct {
-	AWSRegion          string `json:"aws_region" valid:"required"`
-	AWSAccessKeyID     string `json:"aws_access_key_id" valid:"required"`
-	AWSSecretAccessKey string `json:"aws_secret_access_key" valid:"required"`
+	AWSRegion          string  `json:"aws_region" valid:"required"`
+	AWSAccessKeyID     string  `json:"aws_access_key_id" valid:"required"`
+	AWSSecretAccessKey *string `json:"aws_secret_access_key" valid:"optional"`
 }
 
 type Svc interface {
@@ -33,11 +33,6 @@ func (s *svc) GetProfile(ctx context.Context, userUUID string) (*Profile, error)
 }
 
 func (s *svc) SaveProfile(ctx context.Context, userUUID string, p SaveProfileParams) (*Profile, error) {
-	encryptedKey, err := s.secrets.Encrypt(ctx, p.AWSSecretAccessKey)
-	if err != nil {
-		return nil, cerror.New(err, "failed to encrypt aws secret access key", nil)
-	}
-
 	profile, err := s.GetProfile(ctx, userUUID)
 	if err != nil && !cerror.HasCause(err, gorm.ErrRecordNotFound) {
 		return nil, cerror.New(err, "failed to get profile", map[string]interface{}{
@@ -54,13 +49,19 @@ func (s *svc) SaveProfile(ctx context.Context, userUUID string, p SaveProfilePar
 
 	profile.AWSRegion = p.AWSRegion
 	profile.AWSAccessKeyID = p.AWSAccessKeyID
-	profile.AWSSecretAccessKey = encryptedKey
+
+	if p.AWSSecretAccessKey != nil {
+		encryptedKey, err := s.secrets.Encrypt(ctx, *p.AWSSecretAccessKey)
+		if err != nil {
+			return nil, cerror.New(err, "failed to encrypt aws secret access key", nil)
+		}
+
+		profile.AWSSecretAccessKey = encryptedKey
+	}
 
 	err = s.repo.AddProfile(ctx, profile)
 	if err != nil {
-		return nil, cerror.New(err, "failed to save profile", map[string]interface{}{
-			"key": encryptedKey,
-		})
+		return nil, cerror.New(err, "failed to save profile", nil)
 	}
 
 	return profile, nil
