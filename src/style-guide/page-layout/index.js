@@ -5,6 +5,7 @@ import { Unstable_AppNavBar as AppNavBar } from "baseui/app-nav-bar";
 import { useStyletron } from "baseui";
 import { Cell, Grid } from "baseui/layout-grid";
 import { Link, useLocation } from "react-router-dom";
+import LogoSvg from "../illustrations/logo";
 
 type Props = {
   children?: React.Node,
@@ -41,7 +42,12 @@ const PageLayout = (props: Props) => {
     <>
       <div className={css({ position: "fixed", top: 0, left: 0, right: 0 })}>
         <AppNavBar
-          appDisplayName={"Campaign Manager"}
+          appDisplayName={
+            <Link to={"/"}>
+              <LogoSvg height={32} />
+            </Link>
+          }
+          appDisplayNameLink={"DropList"}
           mainNav={[
             {
               item: { label: "Audience", pathname: "/audience" },
