@@ -94,9 +94,38 @@ func (ro *Router) HandleCreateDraftCampaign(w http.ResponseWriter, r *http.Reque
 	ro.resp.OK(w, campaign)
 }
 
+func NewUpdateCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
+	return chttp.RouteResult{Route: chttp.Route{
+		Path:            "/api/campaigns/{uuid:.{36}}",
+		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
+		Methods:         []string{http.MethodPost},
+		Handler:         http.HandlerFunc(ro.HandleUpdateCampaign),
+	}}
+}
+
+func (ro *Router) HandleUpdateCampaign(w http.ResponseWriter, r *http.Request) {
+	var (
+		body CreateCampaignParams
+		uuid = mux.Vars(r)["uuid"]
+	)
+
+	if !ro.req.Read(w, r, &body) {
+		return
+	}
+
+	campaign, err := ro.svc.UpdateCampaign(r.Context(), uuid, body)
+	if err != nil {
+		ro.logger.Error("Failed to update campaign", err)
+		ro.resp.InternalErr(w)
+		return
+	}
+
+	ro.resp.OK(w, campaign)
+}
+
 func NewPublishCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:            "/api/campaigns/{uuid}/publish",
+		Path:            "/api/campaigns/{uuid:.{36}}/publish",
 		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
 		Methods:         []string{http.MethodPost},
 		Handler:         http.HandlerFunc(ro.HandlePublishCampaign),
@@ -118,7 +147,7 @@ func (ro *Router) HandlePublishCampaign(w http.ResponseWriter, r *http.Request) 
 
 func NewTestCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:            "/api/campaigns/{uuid}/test",
+		Path:            "/api/campaigns/{uuid:.{36}}/test",
 		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
 		Methods:         []string{http.MethodPost},
 		Handler:         http.HandlerFunc(ro.HandleTestCampaign),
@@ -279,7 +308,7 @@ func (ro *Router) HandleListUserCampaigns(w http.ResponseWriter, r *http.Request
 
 func NewDeleteCampaignRoute(ro *Router, auth cauth.Middleware) chttp.RouteResult {
 	return chttp.RouteResult{Route: chttp.Route{
-		Path:            "/api/campaigns/{uuid}",
+		Path:            "/api/campaigns/{uuid:.{36}}",
 		MiddlewareFuncs: []chttp.MiddlewareFunc{auth.VerifySessionToken},
 		Methods:         []string{http.MethodDelete},
 		Handler:         http.HandlerFunc(ro.HandleDeleteCampaign),

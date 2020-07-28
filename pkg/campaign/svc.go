@@ -24,6 +24,7 @@ type CreateCampaignParams struct {
 type Svc interface {
 	GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, error)
 	ListUserCampaigns(ctx context.Context, userUUID string) ([]Campaign, error)
+	UpdateCampaign(ctx context.Context, uuid string, p CreateCampaignParams) (*Campaign, error)
 	DeleteCampaign(ctx context.Context, uuid string) error
 	CreateDraftCampaign(ctx context.Context, userUUID string, p CreateCampaignParams) (*Campaign, error)
 	PublishCampaign(ctx context.Context, campaignUUID string) error
@@ -67,6 +68,35 @@ func (s *svc) GetCampaign(ctx context.Context, campaignUUID string) (*Campaign, 
 
 func (s *svc) ListUserCampaigns(ctx context.Context, userUUID string) ([]Campaign, error) {
 	return s.repo.FindCampaignsByCreatedBy(ctx, userUUID)
+}
+
+func (s *svc) UpdateCampaign(ctx context.Context, uuid string, p CreateCampaignParams) (*Campaign, error) {
+	campaign, err := s.GetCampaign(ctx, uuid)
+	if err != nil {
+		return nil, cerror.New(err, "failed to get campaign", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	if campaign.State == StatePublished {
+		return nil, cerror.New(nil, "published campaign cannot be updated", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	campaign.Name = p.Name
+	campaign.FromName = p.FromName
+	campaign.FromEmail = p.FromEmail
+	campaign.TemplateUUID = p.TemplateUUID
+
+	err = s.repo.AddCampaign(ctx, campaign)
+	if err != nil {
+		return nil, cerror.New(err, "failed to update campaign", map[string]interface{}{
+			"uuid": uuid,
+		})
+	}
+
+	return campaign, nil
 }
 
 func (s *svc) DeleteCampaign(ctx context.Context, uuid string) error {
