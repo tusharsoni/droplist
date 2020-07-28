@@ -22,12 +22,11 @@ run-api: build-api
 test:
 	$(GO) test ./pkg/...
 
+.PHONY: build
+build: statik build-api
+
 .PHONY: build-api
 build-api:
-	$(GO) build -o $(BINARY_NAME) $(PKG)
-
-.PHONY: build
-build: statik
 	$(GO) build -o $(BINARY_NAME) $(PKG)
 
 .PHONY: statik
