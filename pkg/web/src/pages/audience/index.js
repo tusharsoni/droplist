@@ -24,12 +24,14 @@ const AudiencePage = () => {
   const page = parseInt(queryParams.get("page"), 10) || 1;
 
   const {
+    get: loadSummary,
     loading: summaryLoading,
     error: summaryError,
     data: summary,
   } = useFetch<AudienceSummary>("/audience/summary", {}, []);
 
   const {
+    get: loadContacts,
     loading: contactsLoading,
     error: contactsError,
     data: contacts,
@@ -87,7 +89,14 @@ const AudiencePage = () => {
       )}
 
       {summary.TotalContacts > 0 && (
-        <AudienceTable summary={summary} contacts={contacts} />
+        <AudienceTable
+          summary={summary}
+          contacts={contacts}
+          onRefresh={() => {
+            loadSummary();
+            loadContacts();
+          }}
+        />
       )}
       {summary.TotalContacts > CONTACTS_PER_PAGE && (
         <>

@@ -11,6 +11,7 @@ import { Spacer40 } from "../../style-guide/spacer";
 type Props = {
   summary: AudienceSummary,
   contacts: Contact[],
+  onRefresh: () => void,
 };
 
 const AudienceTable = (props: Props) => {
@@ -24,6 +25,7 @@ const AudienceTable = (props: Props) => {
         subscribedContacts={props.summary.SubscribedContacts}
         selectedAll={checkAll}
         selectedContacts={selectedContacts}
+        onDelete={props.onRefresh}
       />
       <Spacer40 />
       <Table

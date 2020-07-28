@@ -13,13 +13,14 @@ import {
   ModalHeader,
 } from "baseui/modal";
 import useFetch from "use-http";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 
 type Props = {
   totalContacts: number,
   subscribedContacts: number,
   selectedAll?: ?boolean,
   selectedContacts: Contact[],
+  onDelete: () => void,
 };
 
 const AudienceTableHeader = (props: Props) => {
@@ -82,7 +83,7 @@ const AudienceTableHeader = (props: Props) => {
       <Modal
         onClose={() => setShowConfirmModal(false)}
         isOpen={showConfirmModal}
-        closeable={deleteContactsAPI.loading}
+        closeable={!deleteContactsAPI.loading}
       >
         <ModalHeader>
           {selectedCount === 1
@@ -99,13 +100,10 @@ const AudienceTableHeader = (props: Props) => {
                 contact_uuids: props.selectedContacts.map((c) => c.UUID),
               });
 
-              if (!deleteContactsAPI.response.ok) {
-                // todo: show error toast
-                return;
+              if (deleteContactsAPI.response.ok) {
+                setShowConfirmModal(false);
+                props.onDelete();
               }
-
-              setShowConfirmModal(false);
-              window.location = "/audience";
             }}
           >
             Confirm & Delete
