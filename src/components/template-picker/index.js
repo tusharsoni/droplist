@@ -10,9 +10,10 @@ import { Checkbox } from "baseui/checkbox";
 import { Button, SIZE, KIND } from "baseui/button";
 import { ChevronLeft, ChevronRight } from "baseui/icon";
 import { KIND as NotificationKind, Notification } from "baseui/notification";
-import TemplatePreview from "../../components/template-preview";
+import TemplatePreview from "../template-preview";
 
 type Props = {
+  initialTemplateUUID?: ?string,
   onSelect: (template: Template) => void,
 };
 
@@ -22,11 +23,35 @@ const TemplatePicker = (props: Props) => {
   );
   const [page, setPage] = React.useState(0);
   const [css] = useStyletron();
-  const { loading, error, data: templates } = useFetch<Template[]>(
-    "/content/templates",
-    {},
-    []
-  );
+  const { loading, error, data: templates, ...templatesAPI } = useFetch<
+    Template[]
+  >("/content/templates");
+
+  React.useEffect(() => {
+    async function loadData() {
+      const templates = await templatesAPI.get();
+
+      console.log("=========>", props.initialTemplateUUID);
+      if (!templatesAPI.response.ok || !props.initialTemplateUUID) {
+        return;
+      }
+
+      const initialTemplate = templates.find(
+        (t) => t.UUID === props.initialTemplateUUID
+      );
+
+      if (!initialTemplate) {
+        return;
+      }
+
+      const initialPage = Math.floor(templates.indexOf(initialTemplate) / 2);
+
+      setPage(initialPage);
+      setSelectedTemplate(initialTemplate);
+    }
+
+    loadData();
+  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   if (loading) {
     return (
@@ -49,6 +74,10 @@ const TemplatePicker = (props: Props) => {
         Failed to load templates
       </Notification>
     );
+  }
+
+  if (!templates) {
+    return null;
   }
 
   return (

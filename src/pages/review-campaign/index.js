@@ -4,8 +4,8 @@ import React from "react";
 import PageLayout from "../../style-guide/page-layout";
 import { Display3, Label1, Label2, ParagraphSmall } from "baseui/typography";
 import { useStyletron } from "baseui";
-import { Button } from "baseui/button";
-import { useHistory, useParams } from "react-router-dom";
+import { Button, KIND, SIZE } from "baseui/button";
+import { Link, useHistory, useParams } from "react-router-dom";
 import { Spacer, Spacer20, Spacer40, Spacer8 } from "../../style-guide/spacer";
 import useFetch from "use-http";
 import { StyledSpinnerNext as Spinner } from "baseui/spinner";
@@ -15,7 +15,6 @@ import HR from "../../style-guide/hr";
 import type { AudienceSummary } from "../../lib/types/audience";
 import { KIND as NotificationKind, Notification } from "baseui/notification";
 import TemplatePreview from "../../components/template-preview";
-import DeleteCampaignButton from "./delete-button";
 
 const ReviewCampaignPage = () => {
   const history = useHistory();
@@ -82,11 +81,31 @@ const ReviewCampaignPage = () => {
 
   return (
     <PageLayout>
-      <Display3>Review & Send</Display3>
-      <Spacer20 />
-      <Label1>Review the details and hit the Send button</Label1>
+      <div
+        className={css({
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+        })}
+      >
+        <div>
+          <Display3>Review & Send</Display3>
+          <Spacer20 />
+          <Label1>Review the details and hit the Send button</Label1>
+        </div>
+        <div>
+          <Link
+            className={css({ textDecoration: "none" })}
+            to={`/campaigns/${campaignUUID}/edit`}
+          >
+            <Button kind={KIND.secondary} size={SIZE.compact}>
+              Edit Campaign
+            </Button>
+          </Link>
+        </div>
+      </div>
       <Spacer40 />
-      <div className={css({ maxWidth: "500px" })}>
+      <div>
         <Label2>Audience</Label2>
         <ParagraphSmall>
           {audienceSummary.SubscribedContacts === 1
@@ -116,7 +135,9 @@ const ReviewCampaignPage = () => {
 
         <Label2>Template</Label2>
         <Spacer size={14} />
-        <TemplatePreview template={template} />
+        <div className={css({ maxWidth: "600px" })}>
+          <TemplatePreview template={template} />
+        </div>
 
         <Spacer40 />
         {publishCampaignAPI.error && (
@@ -129,17 +150,13 @@ const ReviewCampaignPage = () => {
             Failed to publish your campaign. Please try again.
           </Notification>
         )}
-        <div
-          className={css({ display: "flex", justifyContent: "space-between" })}
-        >
-          <DeleteCampaignButton campaign={campaign} />
-
+        <div className={css({ display: "flex", justifyContent: "flex-end" })}>
           <Button
             disabled={publishCampaignAPI.loading}
             isLoading={publishCampaignAPI.loading}
             onClick={onSend}
           >
-            Send
+            Send Campaign
           </Button>
         </div>
         <Spacer40 />

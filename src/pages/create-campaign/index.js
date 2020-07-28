@@ -7,7 +7,7 @@ import { useStyletron } from "baseui";
 import { Spacer20, Spacer40 } from "../../style-guide/spacer";
 import { Input } from "baseui/input";
 import { FormControl } from "baseui/form-control";
-import TemplatePicker from "./template-picker";
+import TemplatePicker from "./../../components/template-picker";
 import { Button } from "baseui/button";
 import type { Template } from "../../lib/types/content";
 import { KIND as NotificationKind, Notification } from "baseui/notification";

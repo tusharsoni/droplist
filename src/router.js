@@ -9,6 +9,7 @@ import ImportContactsPage from "./pages/import-contacts";
 import EditTemplatePage from "./pages/edit-template";
 import CreateCampaignPage from "./pages/create-campaign";
 import ReviewCampaignPage from "./pages/review-campaign";
+import EditCampaignPage from "./pages/edit-campaign";
 
 const AppRouter = () => (
   <BrowserRouter>
@@ -29,6 +30,7 @@ const AppRouter = () => (
 
       <Route exact path="/campaigns" component={CampaignsPage} />
       <Route exact path="/campaigns/create" component={CreateCampaignPage} />
+      <Route exact path="/campaigns/:uuid/edit" component={EditCampaignPage} />
       <Route
         exact
         path="/campaigns/:uuid/review"
