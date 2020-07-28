@@ -4,7 +4,6 @@ import React from "react";
 import PageLayout from "../../style-guide/page-layout";
 import { Display3 } from "baseui/typography";
 import { useStyletron } from "baseui";
-import { Button, KIND, SIZE } from "baseui/button";
 import { Link } from "react-router-dom";
 import useFetch from "use-http";
 import type { Campaign, CampaignStats } from "../../lib/types/campaign";
@@ -13,6 +12,7 @@ import { Spacer40 } from "../../style-guide/spacer";
 import { Table } from "baseui/table-semantic";
 import { Tag } from "baseui/tag";
 import { StyledLink } from "baseui/link";
+import CreateCampaignButton from "./create-button";
 
 const CampaignsPage = () => {
   const [css] = useStyletron();
@@ -62,14 +62,7 @@ const CampaignsPage = () => {
         <div>
           <Display3>Campaigns</Display3>
         </div>
-        <Link
-          className={css({ textDecoration: "none" })}
-          to={"/campaigns/create"}
-        >
-          <Button kind={KIND.secondary} size={SIZE.compact}>
-            Create Campaign
-          </Button>
-        </Link>
+        <CreateCampaignButton />
       </div>
 
       <Spacer40 />
