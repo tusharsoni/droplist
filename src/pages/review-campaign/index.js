@@ -15,6 +15,7 @@ import HR from "../../style-guide/hr";
 import type { AudienceSummary } from "../../lib/types/audience";
 import { KIND as NotificationKind, Notification } from "baseui/notification";
 import TemplatePreview from "../../components/template-preview";
+import DeleteCampaignButton from "./delete-button";
 
 const ReviewCampaignPage = () => {
   const history = useHistory();
@@ -128,13 +129,19 @@ const ReviewCampaignPage = () => {
             Failed to publish your campaign. Please try again.
           </Notification>
         )}
-        <Button
-          disabled={publishCampaignAPI.loading}
-          isLoading={publishCampaignAPI.loading}
-          onClick={onSend}
+        <div
+          className={css({ display: "flex", justifyContent: "space-between" })}
         >
-          Send
-        </Button>
+          <DeleteCampaignButton campaign={campaign} />
+
+          <Button
+            disabled={publishCampaignAPI.loading}
+            isLoading={publishCampaignAPI.loading}
+            onClick={onSend}
+          >
+            Send
+          </Button>
+        </div>
         <Spacer40 />
       </div>
     </PageLayout>

@@ -87,12 +87,9 @@ const CampaignsPage = () => {
         ]}
         data={campaigns.map((campaign: Campaign) => [
           campaign.State === "DRAFT" ? (
-            <Link
-              to={`/campaigns/${campaign.UUID}/review`}
-              component={StyledLink}
-            >
+            <StyledLink $as={Link} to={`/campaigns/${campaign.UUID}/review`}>
               {campaign.Name}
-            </Link>
+            </StyledLink>
           ) : (
             campaign.Name
           ),
