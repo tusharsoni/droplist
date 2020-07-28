@@ -2,6 +2,7 @@ package campaign
 
 import (
 	"context"
+	"droplist/pkg/profile"
 	"encoding/json"
 	"html/template"
 	"net/url"
@@ -9,10 +10,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ses"
+
 	"github.com/tusharsoni/copper/cerror"
 
 	"github.com/tusharsoni/copper/clogger"
-	"github.com/tusharsoni/copper/cmailer"
 	"go.uber.org/fx"
 )
 
@@ -21,7 +26,8 @@ type MailerParams struct {
 
 	Svc       Svc
 	Queue     Queue
-	Mailer    cmailer.Mailer
+	Profile   profile.Svc
+	Secrets   profile.Secrets
 	Logger    clogger.Logger
 	Config    Config
 	Lifecycle fx.Lifecycle
@@ -87,6 +93,27 @@ func runSendTask(ctx context.Context, p MailerParams, task *SendTask) error {
 		emailBody strings.Builder
 	)
 
+	campaign, err := p.Svc.GetCampaign(ctx, task.CampaignUUID)
+	if err != nil {
+		return cerror.New(err, "failed to get campaign", map[string]interface{}{
+			"campaignUUID": task.CampaignUUID,
+		})
+	}
+
+	userProfile, err := p.Profile.GetProfile(ctx, campaign.CreatedBy)
+	if err != nil {
+		return cerror.New(err, "failed to get profile", map[string]interface{}{
+			"userUUID": campaign.CreatedBy,
+		})
+	}
+
+	awsKey, err := p.Secrets.Decrypt(ctx, userProfile.AWSSecretAccessKey)
+	if err != nil {
+		return cerror.New(err, "failed to decrypt aws secret access key", map[string]interface{}{
+			"userUUID": campaign.CreatedBy,
+		})
+	}
+
 	tmpl, err := template.New(task.UUID).Funcs(template.FuncMap{
 		"trackURL": func(redirectTo string) string {
 			imgURL, _ := url.Parse(path.Join("/api/campaigns/", task.CampaignUUID, "/events/", task.ContactUUID, "/click"))
@@ -113,14 +140,40 @@ func runSendTask(ctx context.Context, p MailerParams, task *SendTask) error {
 		return cerror.New(err, "failed to execute email template", nil)
 	}
 
-	_, err = p.Mailer.SendHTML(ctx,
-		task.FromName+" <"+task.FromEmail+">",
-		task.ToEmail,
-		task.Subject,
-		emailBody.String(),
-	)
+	awsSession, err := session.NewSession(&aws.Config{
+		Region: aws.String(userProfile.AWSRegion),
+		Credentials: credentials.NewStaticCredentials(
+			userProfile.AWSAccessKeyID,
+			awsKey,
+			"",
+		),
+	})
 	if err != nil {
-		return cerror.New(err, "failed to send email", nil)
+		return cerror.New(err, "failed to create new aws session", nil)
+	}
+
+	_, err = ses.New(awsSession).SendEmailWithContext(ctx, &ses.SendEmailInput{
+		Source: aws.String(task.FromName + " <" + task.FromEmail + ">"),
+		Destination: &ses.Destination{
+			ToAddresses: []*string{&task.ToEmail},
+		},
+		Message: &ses.Message{
+			Subject: &ses.Content{
+				Charset: aws.String("UTF-8"),
+				Data:    aws.String(task.Subject),
+			},
+			Body: &ses.Body{
+				Html: &ses.Content{
+					Charset: aws.String("UTF-8"),
+					Data:    aws.String(emailBody.String()),
+				},
+			},
+		},
+	})
+	if err != nil {
+		return cerror.New(err, "failed to send email", map[string]interface{}{
+			"taskUUID": task.UUID,
+		})
 	}
 
 	return nil

@@ -8,6 +8,7 @@ type Profile struct {
 	UpdatedAt time.Time `gorm:"not null"`
 
 	UserUUID           string `gorm:"not null;unique"`
+	AWSRegion          string `gorm:"not null"`
 	AWSAccessKeyID     string `gorm:"not null"`
 	AWSSecretAccessKey []byte `gorm:"not null"`
 }

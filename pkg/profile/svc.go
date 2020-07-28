@@ -9,6 +9,7 @@ import (
 )
 
 type SaveProfileParams struct {
+	AWSRegion          string `json:"aws_region" valid:"required"`
 	AWSAccessKeyID     string `json:"aws_access_key_id" valid:"required"`
 	AWSSecretAccessKey string `json:"aws_secret_access_key" valid:"required"`
 }
@@ -51,6 +52,7 @@ func (s *svc) SaveProfile(ctx context.Context, userUUID string, p SaveProfilePar
 		}
 	}
 
+	profile.AWSRegion = p.AWSRegion
 	profile.AWSAccessKeyID = p.AWSAccessKeyID
 	profile.AWSSecretAccessKey = encryptedKey
 
