@@ -17,6 +17,7 @@ import { KIND as NotificationKind, Notification } from "baseui/notification";
 import TemplatePreview from "../../components/template-preview";
 import type { Profile } from "../../lib/types/profile";
 import { StyledLink } from "baseui/link";
+import SendTestButton from "./send-test-button";
 
 const ReviewCampaignPage = () => {
   const history = useHistory();
@@ -96,7 +97,9 @@ const ReviewCampaignPage = () => {
           <Spacer20 />
           <Label1>Review the details and hit the Send button</Label1>
         </div>
-        <div>
+        <div className={css({ display: "flex" })}>
+          <SendTestButton campaignUUID={campaign.UUID} />
+          <Spacer8 />
           <Link
             className={css({ textDecoration: "none" })}
             to={`/campaigns/${campaignUUID}/edit`}
