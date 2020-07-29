@@ -13,6 +13,7 @@ import { Display3, Label1 } from "baseui/typography";
 import { useStyletron } from "baseui";
 import { Button, KIND, SIZE } from "baseui/button";
 import PeopleSearchSvg from "../../style-guide/illustrations/people-search";
+import CreateContactButton from "./create-contact-button";
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -76,14 +77,23 @@ const AudiencePage = () => {
             <Spacer40 />
             <Label1>You don't have any contacts yet</Label1>
             <Spacer8 />
-            <Link
-              className={css({ textDecoration: "none" })}
-              to={"/audience/contacts/import"}
-            >
-              <Button kind={KIND.secondary} size={SIZE.compact}>
-                Import Contacts
-              </Button>
-            </Link>
+            <div className={css({ display: "flex" })}>
+              <CreateContactButton
+                onCreate={() => {
+                  loadContacts();
+                  loadSummary();
+                }}
+              />
+              <Spacer8 />
+              <Link
+                className={css({ textDecoration: "none" })}
+                to={"/audience/contacts/import"}
+              >
+                <Button kind={KIND.secondary} size={SIZE.compact}>
+                  Import Contacts
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       )}

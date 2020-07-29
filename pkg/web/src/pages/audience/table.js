@@ -25,7 +25,7 @@ const AudienceTable = (props: Props) => {
         subscribedContacts={props.summary.SubscribedContacts}
         selectedAll={checkAll}
         selectedContacts={selectedContacts}
-        onDelete={props.onRefresh}
+        refreshData={props.onRefresh}
       />
       <Spacer40 />
       <Table

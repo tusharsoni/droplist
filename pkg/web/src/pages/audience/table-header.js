@@ -14,13 +14,14 @@ import {
 } from "baseui/modal";
 import useFetch from "use-http";
 import { Link } from "react-router-dom";
+import CreateContactButton from "./create-contact-button";
 
 type Props = {
   totalContacts: number,
   subscribedContacts: number,
   selectedAll?: ?boolean,
   selectedContacts: Contact[],
-  onDelete: () => void,
+  refreshData: () => void,
 };
 
 const AudienceTableHeader = (props: Props) => {
@@ -69,6 +70,9 @@ const AudienceTableHeader = (props: Props) => {
             </>
           ) : null}
 
+          <CreateContactButton onCreate={props.refreshData} />
+          <Spacer8 />
+
           <Link
             className={css({ textDecoration: "none" })}
             to={"/audience/contacts/import"}
@@ -103,7 +107,7 @@ const AudienceTableHeader = (props: Props) => {
 
               if (deleteContactsAPI.response.ok) {
                 setShowConfirmModal(false);
-                props.onDelete();
+                props.refreshData();
               }
             }}
           >
