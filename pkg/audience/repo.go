@@ -15,7 +15,7 @@ type Repo interface {
 	CountContacts(ctx context.Context, createdBy string, status *string) (int64, error)
 	FindContactsByCreatedBy(ctx context.Context, createdBy string, limit, offset int) ([]Contact, error)
 	AddSegment(ctx context.Context, segment *Segment) error
-	FindContactsByEmails(ctx context.Context, emails []string) ([]Contact, error)
+	FindContactsByCreatedByAndEmails(ctx context.Context, createdBy string, emails []string) ([]Contact, error)
 	DeleteContactsByUUIDs(ctx context.Context, uuids []string) error
 	DeleteContactsByCreatedBy(ctx context.Context, createdBy string) error
 }
@@ -145,11 +145,11 @@ func (r *sqlRepo) AddSegment(ctx context.Context, segment *Segment) error {
 	return nil
 }
 
-func (r *sqlRepo) FindContactsByEmails(ctx context.Context, emails []string) ([]Contact, error) {
+func (r *sqlRepo) FindContactsByCreatedByAndEmails(ctx context.Context, createdBy string, emails []string) ([]Contact, error) {
 	var contacts []Contact
 
 	err := csql.GetConn(ctx, r.db).
-		Where("email in (?)", emails).
+		Where("created_by=? and email in (?)", createdBy, emails).
 		Find(&contacts).
 		Error
 	if err != nil {

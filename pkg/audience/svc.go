@@ -39,7 +39,7 @@ type Svc interface {
 	SegmentedContacts(ctx context.Context, userUUID, segmentUUID string, limit, offset int) ([]Contact, error)
 	UnsubscribeContact(ctx context.Context, uuid string) error
 	UnsubscribeURL(ctx context.Context, uuid string) string
-	GetContactsByEmails(ctx context.Context, emails []string) ([]Contact, error)
+	GetUserContactsByEmails(ctx context.Context, userUUID string, emails []string) ([]Contact, error)
 	DeleteContacts(ctx context.Context, userUUID string, uuids []string) error
 }
 
@@ -204,6 +204,6 @@ func (s *svc) UnsubscribeURL(ctx context.Context, uuid string) string {
 	return s.config.BaseURL.ResolveReference(unsubURL).String()
 }
 
-func (s *svc) GetContactsByEmails(ctx context.Context, emails []string) ([]Contact, error) {
-	return s.repo.FindContactsByEmails(ctx, emails)
+func (s *svc) GetUserContactsByEmails(ctx context.Context, userUUID string, emails []string) ([]Contact, error) {
+	return s.repo.FindContactsByCreatedByAndEmails(ctx, userUUID, emails)
 }

@@ -154,7 +154,7 @@ func (s *svc) TestCampaign(ctx context.Context, campaignUUID string, recipients 
 		})
 	}
 
-	contacts, err := s.audience.GetContactsByEmails(ctx, recipients)
+	contacts, err := s.audience.GetUserContactsByEmails(ctx, campaign.CreatedBy, recipients)
 	if err != nil {
 		return cerror.New(err, "failed to get contacts", map[string]interface{}{
 			"emails": recipients,
