@@ -3,9 +3,10 @@ package main
 import (
 	"droplist/pkg/audience"
 	"droplist/pkg/campaign"
+	"droplist/pkg/config"
 	"droplist/pkg/profile"
+	"flag"
 	"net/url"
-	"os"
 
 	cauthemailotp "github.com/tusharsoni/copper/cauth/emailotp"
 
@@ -31,26 +32,37 @@ type Config struct {
 }
 
 func NewConfig() (Config, error) {
-	baseURL, err := url.Parse(os.Getenv("SHOOT_BASE_URL"))
+	configPath := flag.String("config", "./config.toml", "Path to the config file")
+	flag.Parse()
+
+	appConfig, err := config.Read(*configPath)
+	if err != nil {
+		return Config{}, cerror.New(err, "failed to read config", map[string]interface{}{
+			"path": configPath,
+		})
+	}
+
+	baseURL, err := url.Parse(appConfig.HTTP.BaseURL)
 	if err != nil {
 		return Config{}, cerror.New(err, "failed to parse base url", map[string]interface{}{
-			"url": os.Getenv("SHOOT_BASE_URL"),
+			"url": appConfig.HTTP.BaseURL,
 		})
 	}
 
 	authEmailOTP := cauthemailotp.GetDefaultConfig()
-	authEmailOTP.VerificationEmail.From = "noreply@tenlab.co"
+	authEmailOTP.VerificationEmail.From = appConfig.Auth.VerificationEmailFrom
 
 	return Config{
 		HTTP: chttp.Config{
-			Port:       9712,
+			Port:       appConfig.HTTP.Port,
 			HealthPath: "/api/health",
 		},
 		SQL: csql.Config{
-			Host: "localhost",
-			Port: 5432,
-			Name: "shoot",
-			User: "postgres",
+			Host:     appConfig.SQL.Host,
+			Port:     appConfig.SQL.Port,
+			Name:     appConfig.SQL.Name,
+			User:     appConfig.SQL.User,
+			Password: appConfig.SQL.Password,
 		},
 		Audience: audience.Config{
 			BaseURL: baseURL,
@@ -59,12 +71,12 @@ func NewConfig() (Config, error) {
 			BaseURL: baseURL,
 		},
 		AWSMailer: cmailer.AWSConfig{
-			Region:          "us-east-1",
-			AccessKeyId:     "AKIAIKIZY7B54QZ5M4UA",
-			SecretAccessKey: os.Getenv("AWS_SECRET_ACCESS_KEY"),
+			Region:          appConfig.AWS.Region,
+			AccessKeyId:     appConfig.AWS.AccessKeyID,
+			SecretAccessKey: appConfig.AWS.SecretAccessKey,
 		},
 		Profile: profile.Config{
-			Passphrase: os.Getenv("DROPLIST_PASSPHRASE"),
+			Passphrase: appConfig.Secrets.Passphrase,
 		},
 		AuthEmailOTP: authEmailOTP,
 	}, nil

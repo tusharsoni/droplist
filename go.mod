@@ -3,6 +3,7 @@ module droplist
 go 1.14
 
 require (
+	github.com/BurntSushi/toml v0.3.1
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
 	github.com/aws/aws-sdk-go v1.16.6
 	github.com/getsentry/sentry-go v0.7.0 // indirect

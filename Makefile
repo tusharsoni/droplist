@@ -7,9 +7,6 @@ GOIMPORTS=goimports
 STATIK=statik
 WEB_PKG=pkg/web
 
-include env
-export
-
 .PHONY: run
 run: build
 	./$(BINARY_NAME)

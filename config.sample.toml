@@ -1,0 +1,28 @@
+[http]
+# Set the publicly accessible URL for the app
+base_url="https://droplist.email"
+
+# The port on which the app should run
+port=9712
+
+[sql]
+# The connection to your Postgres database
+host="localhost"
+port=5432
+name="droplist"
+user="postgres"
+password=""
+
+[aws]
+# Set AWS credentials that has permissions to send emails
+region=""
+access_key_id=""
+secret_access_key=""
+
+[secrets]
+# A 32-character passphrase that is used to generate and store secrets
+passphrase=""
+
+[auth]
+# The email that can send verification emails for logins
+verification_email_from="noreply@company.co"
