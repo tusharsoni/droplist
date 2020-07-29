@@ -54,7 +54,7 @@ const SendTestButton = (props: Props) => {
 
           {testCampaignAPI.response.ok && (
             <Notification kind={NotificationKind.positive}>
-              Successfully sent a test email
+              The test email has been queued for sending
             </Notification>
           )}
 
