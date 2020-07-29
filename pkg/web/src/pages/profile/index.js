@@ -12,8 +12,12 @@ import useFetch from "use-http";
 import type { Profile } from "../../lib/types/profile";
 import { KIND as NotificationKind, Notification } from "baseui/notification";
 import { StyledSpinnerNext as Spinner } from "baseui/spinner";
+import { LabelXSmall } from "baseui/typography";
+import { useStyletron } from "baseui";
+import { StyledLink } from "baseui/link";
 
 const ProfilePage = () => {
+  const [css] = useStyletron();
   const fetchProfileAPI = useFetch<Profile>(`/profile`);
   const updateProfileAPI = useFetch<Profile>(`/profile`);
   const [accessKeyID, setAccessKeyID] = React.useState("");
@@ -57,7 +61,26 @@ const ProfilePage = () => {
   return (
     <PageLayout>
       <Card
-        title="AWS Settings"
+        title={
+          <div
+            className={css({
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+            })}
+          >
+            <div>AWS Settings</div>
+            <div>
+              <StyledLink
+                target="_blank"
+                rel="noreferrer"
+                href="https://console.aws.amazon.com/iam/home"
+              >
+                <LabelXSmall>IAM Management Console</LabelXSmall>
+              </StyledLink>
+            </div>
+          </div>
+        }
         overrides={{ Root: { style: { maxWidth: "500px", margin: "0 auto" } } }}
       >
         <StyledBody>
@@ -86,6 +109,20 @@ const ProfilePage = () => {
               onChange={({ value }) => setRegion(value)}
             />
           </FormControl>
+          <Spacer8 />
+          <Notification
+            overrides={{
+              Body: { style: { width: "auto" } },
+            }}
+          >
+            <>
+              Make sure that the user has the following policies attached:
+              <ul className={css({ lineHeight: "24px", marginBottom: 0 })}>
+                <li>AmazonSESFullAccess</li>
+                <li>AmazonSNSFullAccess</li>
+              </ul>
+            </>
+          </Notification>
           <Spacer20 />
         </StyledBody>
         <StyledAction>
