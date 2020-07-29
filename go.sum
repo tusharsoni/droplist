@@ -180,6 +180,8 @@ github.com/tusharsoni/copper v0.0.0-20200729010812-04b6608882bb h1:FptlZ2JwUEQoK
 github.com/tusharsoni/copper v0.0.0-20200729010812-04b6608882bb/go.mod h1:bqlEuaCWft/tBMIc9zN97JStfkCOTTiwUjH9SAN8N3M=
 github.com/tusharsoni/copper v0.0.0-20200729150218-a1885f1b976c h1:qzrrghe6XEIg46+HJu3/KaZhBZ01O1n/kox1hGz70+g=
 github.com/tusharsoni/copper v0.0.0-20200729150218-a1885f1b976c/go.mod h1:bqlEuaCWft/tBMIc9zN97JStfkCOTTiwUjH9SAN8N3M=
+github.com/tusharsoni/copper v0.0.0-20200729182209-f5f3a8982e25 h1:7cmCt36L3TYW8q3INT9KCNN5NgVMW8yXCKQEWueZsPU=
+github.com/tusharsoni/copper v0.0.0-20200729182209-f5f3a8982e25/go.mod h1:bqlEuaCWft/tBMIc9zN97JStfkCOTTiwUjH9SAN8N3M=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/ugorji/go v1.1.7/go.mod h1:kZn38zHttfInRq0xu/PH0az30d+z6vm202qpg1oXVMw=
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
