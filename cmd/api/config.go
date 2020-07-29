@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"os"
 
+	cauthemailotp "github.com/tusharsoni/copper/cauth/emailotp"
+
 	"github.com/tusharsoni/copper/cerror"
 
 	"github.com/tusharsoni/copper/cmailer"
@@ -19,12 +21,13 @@ import (
 type Config struct {
 	fx.Out
 
-	HTTP      chttp.Config
-	SQL       csql.Config
-	Audience  audience.Config
-	Campaign  campaign.Config
-	AWSMailer cmailer.AWSConfig
-	Profile   profile.Config
+	HTTP         chttp.Config
+	SQL          csql.Config
+	Audience     audience.Config
+	Campaign     campaign.Config
+	AWSMailer    cmailer.AWSConfig
+	Profile      profile.Config
+	AuthEmailOTP cauthemailotp.Config
 }
 
 func NewConfig() (Config, error) {
@@ -34,6 +37,9 @@ func NewConfig() (Config, error) {
 			"url": os.Getenv("SHOOT_BASE_URL"),
 		})
 	}
+
+	authEmailOTP := cauthemailotp.GetDefaultConfig()
+	authEmailOTP.VerificationEmail.From = "noreply@tenlab.co"
 
 	return Config{
 		HTTP: chttp.Config{
@@ -60,5 +66,6 @@ func NewConfig() (Config, error) {
 		Profile: profile.Config{
 			Passphrase: os.Getenv("DROPLIST_PASSPHRASE"),
 		},
+		AuthEmailOTP: authEmailOTP,
 	}, nil
 }

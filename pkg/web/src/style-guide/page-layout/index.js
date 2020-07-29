@@ -75,6 +75,11 @@ const PageLayout = (props: Props) => {
               mapItemToString: (item) => item.label,
               mapItemToNode: (item) => <NavLink {...item} />,
             },
+            {
+              item: { label: "Logout", pathname: "/logout" },
+              mapItemToString: (item) => item.label,
+              mapItemToNode: (item) => <NavLink {...item} />,
+            },
           ]}
         />
       </div>

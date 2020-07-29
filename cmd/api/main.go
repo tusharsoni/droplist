@@ -8,7 +8,7 @@ import (
 	"droplist/pkg/web"
 
 	"github.com/tusharsoni/copper/cauth"
-	cauthanonymous "github.com/tusharsoni/copper/cauth/anonymous"
+	cauthemailotp "github.com/tusharsoni/copper/cauth/emailotp"
 
 	"github.com/tusharsoni/copper/cmailer"
 
@@ -22,9 +22,9 @@ func main() {
 	app := copper.NewHTTPApp(
 		clogger.StdFx,
 		csql.Fx,
-		cmailer.AWSFx,
+		cmailer.LoggerFX,
 		cauth.Fx,
-		cauthanonymous.Fx,
+		cauthemailotp.Fx,
 
 		fx.Provide(NewConfig),
 
@@ -36,6 +36,7 @@ func main() {
 
 		fx.Invoke(
 			cauth.RunMigrations,
+			cauthemailotp.RunMigrations,
 			audience.RunMigrations,
 			campaign.RunMigrations,
 			content.RunMigrations,
