@@ -121,10 +121,12 @@ const ReviewCampaignPage = () => {
                 Body: { style: { width: "auto" } },
               }}
             >
-              AWS settings have not been configured.{" "}
-              <StyledLink $as={Link} to={`/profile`}>
-                Fix here.
-              </StyledLink>
+              <>
+                AWS settings have not been configured.{" "}
+                <StyledLink $as={Link} to={`/profile`}>
+                  Fix here.
+                </StyledLink>
+              </>
             </Notification>
           ) : getProfileAPI.error ? (
             "Failed to verify AWS settings"
