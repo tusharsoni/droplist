@@ -7,31 +7,31 @@ import (
 
 type Config struct {
 	HTTP struct {
-		Port    uint
-		BaseURL string
-	}
+		Port    uint   `toml:"port"`
+		BaseURL string `toml:"base_url"`
+	} `toml:"http"`
 
 	SQL struct {
-		Host     string
-		Port     uint
-		Name     string
-		User     string
-		Password string
-	}
+		Host     string `toml:"host"`
+		Port     uint   `toml:"port"`
+		Name     string `toml:"name"`
+		User     string `toml:"user"`
+		Password string `toml:"password"`
+	} `toml:"sql"`
 
 	AWS struct {
-		Region          string
-		AccessKeyID     string
-		SecretAccessKey string
+		Region          string `toml:"region"`
+		AccessKeyID     string `toml:"access_key_id"`
+		SecretAccessKey string `toml:"secret_access_key"`
 	}
 
 	Secrets struct {
-		Passphrase string
-	}
+		Passphrase string `toml:"passphrase"`
+	} `toml:"secrets"`
 
 	Auth struct {
-		VerificationEmailFrom string
-	}
+		VerificationEmailFrom string `toml:"verification_email_from"`
+	} `toml:"auth"`
 }
 
 func Read(path string) (*Config, error) {
