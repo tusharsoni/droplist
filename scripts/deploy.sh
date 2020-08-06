@@ -7,8 +7,8 @@ set -e
 SSH_USER=tenlab
 SSH_IP=206.189.253.106
 SSH_PORT=1472
-BINARY=shoot-new
-DEPLOY_DIR="/home/tenlab/shoot"
+BINARY=droplist-new
+DEPLOY_DIR="/home/tenlab/droplist"
 CMD=api
 LOG_FILE=log
 
@@ -30,6 +30,7 @@ chmod +x run.sh
 ./run.sh
 sleep 3
 tail $LOG_FILE
+exit
 '"
 
 echo "Cleaning up.."

@@ -1,15 +1,15 @@
 #!/bin/bash
 
-NEW_BINARY=shoot-new
-BINARY=/tmp/shoot
-LOG=/home/tenlab/shoot/log
-PORT=9712
+CONFIG=config.toml
+NEW_BINARY=droplist-new
+BINARY=/tmp/droplist
+LOG=/home/tenlab/droplist/log
 
 run() {
-	echo "Killing existing process on port $PORT"
-	pkill -f .*$BINARY.*\-httpport\=$PORT.*
-	echo "Starting on port $PORT.."
-	until nohup $BINARY -httpport=$PORT >> $LOG 2>&1; do
+	echo "Killing existing process $BINARY"
+	pkill -f .*$BINARY.*
+	echo "Starting $BINARY.."
+	until nohup $BINARY >> $LOG 2>&1; do
 		echo "[${date}] Crashed with exit code $?.  Respawning.." >> $LOG
 		sleep 3
 	done
@@ -17,5 +17,6 @@ run() {
 
 rm -f $BINARY
 cp $NEW_BINARY $BINARY
+cp $CONFIG /tmp/$CONFIG
 
 run &
