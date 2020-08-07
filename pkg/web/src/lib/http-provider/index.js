@@ -3,7 +3,7 @@
 import { Provider } from "use-http";
 import * as React from "react";
 import { useHistory } from "react-router-dom";
-import { getSession } from "../auth";
+import { clearSession, getSession } from "../auth";
 
 type Props = {
   children: React.Node,
@@ -37,6 +37,14 @@ const HTTPProvider = (props: Props) => {
         }
 
         return options;
+      },
+      response: async ({ response }) => {
+        if (response.status === 401) {
+          clearSession();
+          history.push("/login");
+        }
+
+        return response;
       },
     },
   };
