@@ -4,9 +4,11 @@ import (
 	"droplist/pkg/audience"
 	"droplist/pkg/campaign"
 	"droplist/pkg/config"
+	"droplist/pkg/credit"
 	"droplist/pkg/profile"
 	"flag"
 	"net/url"
+	"time"
 
 	cauthemailotp "github.com/tusharsoni/copper/cauth/emailotp"
 
@@ -29,6 +31,7 @@ type Config struct {
 	AWSMailer    cmailer.AWSConfig
 	Profile      profile.Config
 	AuthEmailOTP cauthemailotp.Config
+	Credit       credit.Config
 }
 
 func NewConfig() (Config, error) {
@@ -51,6 +54,28 @@ func NewConfig() (Config, error) {
 
 	authEmailOTP := cauthemailotp.GetDefaultConfig()
 	authEmailOTP.VerificationEmail.From = appConfig.Auth.VerificationEmailFrom
+
+	creditProductsByID := make(map[string]credit.ProductConfig)
+	for _, pc := range appConfig.Credit.Products {
+		creditProduct := credit.ProductConfig{
+			Description: pc.Description,
+			UseLimit:    pc.UseLimit,
+			PriceUSD:    pc.PriceUSD,
+		}
+
+		if pc.Duration != nil {
+			duration, err := time.ParseDuration(*pc.Duration)
+			if err != nil {
+				return Config{}, cerror.New(err, "failed to parse credit product duration", map[string]interface{}{
+					"duration": pc.Duration,
+				})
+			}
+
+			creditProduct.Duration = &duration
+		}
+
+		creditProductsByID[pc.ID] = creditProduct
+	}
 
 	return Config{
 		HTTP: chttp.Config{
@@ -79,5 +104,10 @@ func NewConfig() (Config, error) {
 			Passphrase: appConfig.Secrets.Passphrase,
 		},
 		AuthEmailOTP: authEmailOTP,
+		Credit: credit.Config{
+			Enabled:   appConfig.Credit.Enabled,
+			StripeKey: appConfig.Credit.StripeKey,
+			Products:  creditProductsByID,
+		},
 	}, nil
 }

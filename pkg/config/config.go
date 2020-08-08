@@ -32,6 +32,18 @@ type Config struct {
 	Auth struct {
 		VerificationEmailFrom string `toml:"verification_email_from"`
 	} `toml:"auth"`
+
+	Credit struct {
+		Enabled   bool   `toml:"enabled"`
+		StripeKey string `toml:"stripe_key"`
+		Products  []struct {
+			ID          string  `toml:"id"`
+			Description string  `toml:"description"`
+			UseLimit    *int64  `toml:"use_limit"`
+			Duration    *string `toml:"duration"`
+			PriceUSD    int64   `toml:"price_usd"`
+		} `toml:"products"`
+	} `toml:"credit"`
 }
 
 func Read(path string) (*Config, error) {

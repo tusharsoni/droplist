@@ -4,6 +4,7 @@ import (
 	"droplist/pkg/audience"
 	"droplist/pkg/campaign"
 	"droplist/pkg/content"
+	"droplist/pkg/credit"
 	"droplist/pkg/profile"
 	"droplist/pkg/web"
 
@@ -33,6 +34,7 @@ func main() {
 		content.Fx,
 		profile.Fx,
 		web.Fx,
+		credit.Fx,
 
 		fx.Invoke(
 			cauth.RunMigrations,
@@ -41,6 +43,7 @@ func main() {
 			campaign.RunMigrations,
 			content.RunMigrations,
 			profile.RunMigrations,
+			credit.RunMigrations,
 		),
 
 		fx.Invoke(

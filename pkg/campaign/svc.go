@@ -4,6 +4,7 @@ import (
 	"context"
 	"droplist/pkg/audience"
 	"droplist/pkg/content"
+	"droplist/pkg/credit"
 	"encoding/json"
 	"net/url"
 	"path"
@@ -41,6 +42,7 @@ type SvcParams struct {
 	Queue    Queue
 	Audience audience.Svc
 	Content  content.Svc
+	Credit   credit.Svc
 	Config   Config
 }
 
@@ -50,6 +52,7 @@ func NewSvc(p SvcParams) Svc {
 		queue:    p.Queue,
 		audience: p.Audience,
 		content:  p.Content,
+		credit:   p.Credit,
 		config:   p.Config,
 	}
 }
@@ -59,6 +62,7 @@ type svc struct {
 	queue    Queue
 	audience audience.Svc
 	content  content.Svc
+	credit   credit.Svc
 	config   Config
 }
 
@@ -234,6 +238,13 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 	if err != nil {
 		return cerror.New(err, "failed to get template", map[string]interface{}{
 			"templateUUID": campaign.TemplateUUID,
+		})
+	}
+
+	err = s.credit.UseBestAvailableCredit(ctx, campaign.CreatedBy, campaign.UUID)
+	if err != nil {
+		return cerror.New(err, "failed to use credit", map[string]interface{}{
+			"userUUID": campaign.CreatedBy,
 		})
 	}
 
