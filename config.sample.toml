@@ -1,6 +1,6 @@
 [http]
 # Set the publicly accessible URL for the app
-base_url="https://droplist.email"
+base_url="http://localhost:9712"
 
 # The port on which the app should run
 port=9712
@@ -14,7 +14,8 @@ user="postgres"
 password=""
 
 [aws]
-# Set AWS credentials that has permissions to send emails
+# Set AWS credentials that has permissions to send emails.
+# This account will be used to only send account verificant emails, NOT campaign emails.
 region=""
 access_key_id=""
 secret_access_key=""
