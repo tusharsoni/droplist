@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@stripe/react-stripe-js": "^1.1.2",
+    "@stripe/stripe-js": "^1.8.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
@@ -43,5 +45,9 @@
     "flow-bin": "^0.110.0",
     "prettier": "^2.0.5"
   },
-  "proxy": "http://localhost:9712"
+  "proxy": "http://localhost:9712",
+  "volta": {
+    "node": "12.18.3",
+    "yarn": "1.22.4"
+  }
 }

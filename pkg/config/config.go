@@ -34,9 +34,8 @@ type Config struct {
 	} `toml:"auth"`
 
 	Credit struct {
-		Enabled   bool   `toml:"enabled"`
-		StripeKey string `toml:"stripe_key"`
-		Products  []struct {
+		Enabled  bool `toml:"enabled"`
+		Products []struct {
 			ID          string  `toml:"id"`
 			Description string  `toml:"description"`
 			UseLimit    *int64  `toml:"use_limit"`
@@ -44,6 +43,11 @@ type Config struct {
 			PriceUSD    int64   `toml:"price_usd"`
 		} `toml:"products"`
 	} `toml:"credit"`
+
+	Stripe struct {
+		PublicKey string `toml:"public_key"`
+		SecretKey string `toml:"secret_key"`
+	} `toml:"stripe"`
 }
 
 func Read(path string) (*Config, error) {

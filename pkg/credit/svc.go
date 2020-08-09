@@ -32,21 +32,30 @@ type SvcParams struct {
 }
 
 func NewSvc(p SvcParams) Svc {
-	stripe.Key = p.Config.StripeKey
+	stripe.Key = p.Config.Stripe.SecretKey
+
+	productsByID := make(map[string]ProductConfig)
+	for i := range p.Config.Products {
+		productsByID[p.Config.Products[i].ID] = p.Config.Products[i]
+	}
 
 	return &svc{
 		repo:   p.Repo,
 		config: p.Config,
+
+		productsByID: productsByID,
 	}
 }
 
 type svc struct {
 	repo   Repo
 	config Config
+
+	productsByID map[string]ProductConfig
 }
 
 func (s *svc) PurchaseIntent(ctx context.Context, userUUID, productID string) (*Pack, string, error) {
-	product, ok := s.config.Products[productID]
+	product, ok := s.productsByID[productID]
 	if !ok {
 		return nil, "", cerror.New(nil, "invalid product id", map[string]interface{}{
 			"productID": productID,

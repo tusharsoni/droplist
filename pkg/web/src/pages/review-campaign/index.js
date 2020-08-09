@@ -15,16 +15,14 @@ import HR from "../../style-guide/hr";
 import type { AudienceSummary } from "../../lib/types/audience";
 import { KIND as NotificationKind, Notification } from "baseui/notification";
 import TemplatePreview from "../../components/template-preview";
-import type { Profile } from "../../lib/types/profile";
-import { StyledLink } from "baseui/link";
 import SendTestButton from "./send-test-button";
+import ReviewAccountSettings from "./review-account-settings";
 
 const ReviewCampaignPage = () => {
   const history = useHistory();
   const [css] = useStyletron();
   const { uuid: campaignUUID } = useParams();
 
-  const getProfileAPI = useFetch<Profile>(`/profile`, {}, []);
   const publishCampaignAPI = useFetch(`/campaigns/${campaignUUID}/publish`);
   const {
     data: audienceSummary,
@@ -112,31 +110,7 @@ const ReviewCampaignPage = () => {
       </div>
       <Spacer40 />
       <div>
-        <Label2>AWS Settings</Label2>
-
-        <ParagraphSmall>
-          {getProfileAPI.loading ? (
-            "Checking.."
-          ) : getProfileAPI.response.status === 404 ? (
-            <Notification
-              kind={NotificationKind.negative}
-              overrides={{
-                Body: { style: { width: "auto" } },
-              }}
-            >
-              <>
-                AWS settings have not been configured.{" "}
-                <StyledLink $as={Link} to={`/profile`}>
-                  Fix here.
-                </StyledLink>
-              </>
-            </Notification>
-          ) : getProfileAPI.error ? (
-            "Failed to verify AWS settings"
-          ) : (
-            "AWS has been configured"
-          )}
-        </ParagraphSmall>
+        <ReviewAccountSettings />
 
         <Spacer8 />
         <HR />

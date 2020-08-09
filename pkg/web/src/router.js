@@ -12,6 +12,7 @@ import EditCampaignPage from "./pages/edit-campaign";
 import ProfilePage from "./pages/profile";
 import LoginPage from "./pages/login";
 import LogoutPage from "./pages/logout";
+import CreditsPage from "./pages/credits";
 
 const AppRouter = () => (
   <Switch>
@@ -23,6 +24,8 @@ const AppRouter = () => (
     <Route exact path="/logout" component={LogoutPage} />
 
     <Route exact path="/profile" component={ProfilePage} />
+
+    <Route exact path="/credits" component={CreditsPage} />
 
     <Route exact path="/audience" component={AudiencePage} />
     <Route

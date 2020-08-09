@@ -72,6 +72,7 @@ func (ro *Router) HandlePurchasePack(w http.ResponseWriter, r *http.Request) {
 
 	ro.resp.OK(w, map[string]interface{}{
 		"Pack":               pack,
+		"StripePublicKey":    ro.config.Stripe.PublicKey,
 		"StripeClientSecret": secret,
 	})
 }
@@ -135,5 +136,8 @@ func NewGetProductsRoute(ro *Router) chttp.RouteResult {
 }
 
 func (ro *Router) HandleGetProducts(w http.ResponseWriter, r *http.Request) {
-	ro.resp.OK(w, ro.config.Products)
+	ro.resp.OK(w, map[string]interface{}{
+		"Enabled":  ro.config.Enabled,
+		"Products": ro.config.Products,
+	})
 }

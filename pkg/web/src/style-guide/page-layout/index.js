@@ -71,6 +71,11 @@ const PageLayout = (props: Props) => {
           username="DropList User"
           userNav={[
             {
+              item: { label: "Credits", pathname: "/credits" },
+              mapItemToString: (item) => item.label,
+              mapItemToNode: (item) => <NavLink {...item} />,
+            },
+            {
               item: { label: "AWS Settings", pathname: "/profile" },
               mapItemToString: (item) => item.label,
               mapItemToNode: (item) => <NavLink {...item} />,

@@ -2,6 +2,10 @@ package ptr
 
 import "time"
 
+func String(val string) *string {
+	return &val
+}
+
 func Int64(val int64) *int64 {
 	return &val
 }

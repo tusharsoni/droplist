@@ -55,9 +55,10 @@ func NewConfig() (Config, error) {
 	authEmailOTP := cauthemailotp.GetDefaultConfig()
 	authEmailOTP.VerificationEmail.From = appConfig.Auth.VerificationEmailFrom
 
-	creditProductsByID := make(map[string]credit.ProductConfig)
-	for _, pc := range appConfig.Credit.Products {
-		creditProduct := credit.ProductConfig{
+	creditProducts := make([]credit.ProductConfig, len(appConfig.Credit.Products))
+	for i, pc := range appConfig.Credit.Products {
+		product := credit.ProductConfig{
+			ID:          pc.ID,
 			Description: pc.Description,
 			UseLimit:    pc.UseLimit,
 			PriceUSD:    pc.PriceUSD,
@@ -71,10 +72,10 @@ func NewConfig() (Config, error) {
 				})
 			}
 
-			creditProduct.Duration = &duration
+			product.Duration = &duration
 		}
 
-		creditProductsByID[pc.ID] = creditProduct
+		creditProducts[i] = product
 	}
 
 	return Config{
@@ -105,9 +106,12 @@ func NewConfig() (Config, error) {
 		},
 		AuthEmailOTP: authEmailOTP,
 		Credit: credit.Config{
-			Enabled:   appConfig.Credit.Enabled,
-			StripeKey: appConfig.Credit.StripeKey,
-			Products:  creditProductsByID,
+			Enabled: appConfig.Credit.Enabled,
+			Stripe: credit.StripeConfig{
+				PublicKey: appConfig.Stripe.PublicKey,
+				SecretKey: appConfig.Stripe.SecretKey,
+			},
+			Products: creditProducts,
 		},
 	}, nil
 }
