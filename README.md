@@ -9,7 +9,10 @@ Visit [droplist.email](https://droplist.email) to watch a demo and sign up on ou
 
 ## Binary
 - Download the [latest release](https://github.com/tusharsoni/droplist/releases).
-- Download the [sample config file](https://github.com/tusharsoni/droplist/blob/master/config.sample.toml) and save it in the same directory as the binary. Rename the file to `config.toml`.
+- Download the [sample config file](https://github.com/tusharsoni/droplist/blob/master/config.sample.toml).
+- Save the config in the same directory as the binary as `config.toml`.
+> Alternatively, you can run the binary with `-config <<path to config file>>`
+
 - Follow the comments in the config file to set up everything.
 - Run the binary and that's it! Droplist is now running on http://localhost:9712
 
