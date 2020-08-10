@@ -2,7 +2,7 @@
 
 import { Provider } from "use-http";
 import * as React from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { clearSession, getSession } from "../auth";
 
 type Props = {
@@ -13,6 +13,10 @@ const whitelistedPaths = ["/auth/email-otp/signup", "/auth/email-otp/login"];
 
 const HTTPProvider = (props: Props) => {
   const history = useHistory();
+  const location = useLocation();
+  const loginURL = `/login?to=${encodeURIComponent(
+    location.pathname + location.search
+  )}`;
 
   const options = {
     cachePolicy: "no-cache",
@@ -22,7 +26,7 @@ const HTTPProvider = (props: Props) => {
         const shouldSendAuthHeaders = whitelistedPaths.indexOf(path) < 0;
 
         if (shouldSendAuthHeaders && !session) {
-          history.push("/login");
+          history.push(loginURL);
           return options;
         }
 
@@ -41,7 +45,7 @@ const HTTPProvider = (props: Props) => {
       response: async ({ response }) => {
         if (response.status === 401) {
           clearSession();
-          history.push("/login");
+          history.push(loginURL);
         }
 
         return response;

@@ -9,7 +9,7 @@ import { FormControl } from "baseui/form-control";
 import { Input } from "baseui/input";
 import useFetch from "use-http";
 import type { AuthResponse } from "../../lib/types/auth";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { storeSession } from "../../lib/auth";
 import { KIND as NotificationKind, Notification } from "baseui/notification";
 
@@ -23,6 +23,11 @@ const LoginPage = () => {
   const [email, setEmail] = React.useState("");
   const [verificationCode, setVerificationCode] = React.useState("");
   const history = useHistory();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const successURL = queryParams.has("to")
+    ? decodeURIComponent(queryParams.get("to"))
+    : "/";
 
   const onNext = async () => {
     const resp = await signupAPI.post({
@@ -35,7 +40,7 @@ const LoginPage = () => {
 
     if (resp.session_token) {
       storeSession(resp.user_uuid, resp.session_token);
-      history.push("/");
+      history.push(successURL);
       return;
     }
 
@@ -50,7 +55,7 @@ const LoginPage = () => {
 
     if (loginAPI.response.ok) {
       storeSession(resp.user_uuid, resp.session_token);
-      history.push("/");
+      history.push(successURL);
     }
   };
 
