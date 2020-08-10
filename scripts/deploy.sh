@@ -4,18 +4,13 @@ cd "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 set -e
 
-SSH_USER=tenlab
-SSH_IP=206.189.253.106
-SSH_PORT=1472
-BINARY=droplist-new
+source deploy.env
+
+BINARY=./../droplist-api
 DEPLOY_DIR="/home/tenlab/droplist"
 CMD=api
 LOG_FILE=log
 
-echo "Building binary.."
-GOOS=linux GOARCH=amd64 GO111MODULE=on go build -o $BINARY ./../cmd/$CMD
-
-echo "Copying binary and deploy script.."
 scp -P $SSH_PORT $BINARY $SSH_USER@$SSH_IP:$DEPLOY_DIR/.
 scp -P $SSH_PORT @deploy_run.sh $SSH_USER@$SSH_IP:$DEPLOY_DIR/run.sh
 
@@ -32,6 +27,3 @@ sleep 3
 tail $LOG_FILE
 exit
 '"
-
-echo "Cleaning up.."
-rm $BINARY

@@ -15,6 +15,10 @@ run: build
 run-api: build-api
 	./$(BINARY_NAME)
 
+.PHONY: deploy
+deploy: build-deploy
+	bash ./scripts/deploy.sh
+
 .PHONY: test
 test:
 	$(GO) test ./pkg/...
@@ -25,6 +29,10 @@ build: statik build-api
 .PHONY: build-api
 build-api:
 	$(GO) build -o $(BINARY_NAME) $(PKG)
+
+.PHONY: build-deploy
+build-deploy: statik
+	GOOS=linux GOARCH=amd64 $(GO) build -o $(BINARY_NAME) $(PKG)
 
 .PHONY: statik
 statik: web

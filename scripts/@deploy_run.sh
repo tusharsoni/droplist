@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CONFIG=config.toml
-NEW_BINARY=droplist-new
+NEW_BINARY=droplist-api
 BINARY=/tmp/droplist
 LOG=/home/tenlab/droplist/log
 
