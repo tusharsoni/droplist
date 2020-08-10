@@ -15,7 +15,7 @@ import { Button } from "baseui/button";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import PaymentForm from "./payment-form";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Step = {
   SELECT_CREDIT_PACK: 1,
@@ -26,19 +26,32 @@ const Step = {
 let stripe;
 
 const CreditsPage = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
   const [step, setStep] = React.useState(Step.SELECT_CREDIT_PACK);
   const [product, setProduct] = React.useState<?CreditPackProduct>(null);
 
   const fetchProducts = useFetch<{ Products: CreditPackProduct[] }>(
-    `/credit/products`,
-    {},
-    []
+    `/credit/products`
   );
   const purchaseAPI = useFetch<{
     StripePublicKey: string,
     StripeClientSecret: string,
     Pack: CreditPack,
   }>("/credit/packs/purchase");
+
+  React.useEffect(() => {
+    async function loadData() {
+      const { Products: products } = await fetchProducts.get();
+
+      if (fetchProducts.response.ok && queryParams.has("product")) {
+        setProduct(products.find((p) => p.ID === queryParams.get("product")));
+      }
+    }
+
+    loadData();
+  }, []); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   if (fetchProducts.loading) {
     return (
