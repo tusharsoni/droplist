@@ -282,7 +282,7 @@ func (s *svc) PublishCampaign(ctx context.Context, campaignUUID string) error {
 			FromEmail:    campaign.FromEmail,
 			Subject:      tmpl.Subject,
 			HTMLBody:     tmpl.HTMLBody,
-			ToEmail:      "success@simulator.amazonses.com",
+			ToEmail:      contact.Email,
 			Params:       string(paramsJ),
 			Status:       SendTaskStatusQueued,
 		})
