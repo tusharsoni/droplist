@@ -26,7 +26,8 @@ const LoginPage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const successURL = queryParams.has("to")
-    ? decodeURIComponent(queryParams.get("to"))
+    ? // $FlowFixMe: queryParams.get("to") will not return null since we already checked for it above
+      decodeURIComponent(queryParams.get("to"))
     : "/";
 
   const onNext = async () => {
