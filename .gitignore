@@ -4,6 +4,7 @@ vendor/
 
 droplist-api
 config.toml
+release/
 
 statik.go
 
