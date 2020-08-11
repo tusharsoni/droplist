@@ -31,7 +31,7 @@ const LoginPage = () => {
 
   const onNext = async () => {
     const resp = await signupAPI.post({
-      email,
+      email: email.toLowerCase().trim(),
     });
 
     if (!signupAPI.response.ok) {
@@ -49,7 +49,7 @@ const LoginPage = () => {
 
   const onLogin = async () => {
     const resp = await loginAPI.post({
-      email,
+      email: email.toLowerCase().trim(),
       verification_code: parseInt(verificationCode, 10),
     });
 

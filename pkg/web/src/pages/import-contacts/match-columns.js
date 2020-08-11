@@ -70,7 +70,7 @@ const MatchColumns = (props: Props) => {
         }
 
         const contacts = data.map((row) => ({
-          email: row[emailColumn],
+          email: (row[emailColumn] || "").toLowerCase().trim(),
           params: JSON.stringify({
             FirstName: firstNameColumn ? row[firstNameColumn] : null,
             LastName: lastNameColumn ? row[lastNameColumn] : null,

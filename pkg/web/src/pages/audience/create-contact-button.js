@@ -86,7 +86,7 @@ const CreateContactButton = (props: Props) => {
               await contactsAPI.post({
                 contacts: [
                   {
-                    email,
+                    email: email.toLowerCase().trim(),
                     params: JSON.stringify({
                       FirstName: firstName,
                       LastName: lastName,
