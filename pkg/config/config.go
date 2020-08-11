@@ -48,6 +48,10 @@ type Config struct {
 		PublicKey string `toml:"public_key"`
 		SecretKey string `toml:"secret_key"`
 	} `toml:"stripe"`
+
+	Campaign struct {
+		MaxContacts int `toml:"max_contacts"`
+	} `toml:"campaign"`
 }
 
 func Read(path string) (*Config, error) {

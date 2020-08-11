@@ -27,3 +27,7 @@ passphrase=""
 [auth]
 # The email that can send verification emails for logins
 verification_email_from="noreply@company.co"
+
+[campaign]
+# The max number of contacts in a single campaign segment
+max_contacts=50000

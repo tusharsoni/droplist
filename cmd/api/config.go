@@ -94,7 +94,8 @@ func NewConfig() (Config, error) {
 			BaseURL: baseURL,
 		},
 		Campaign: campaign.Config{
-			BaseURL: baseURL,
+			BaseURL:     baseURL,
+			MaxContacts: appConfig.Campaign.MaxContacts,
 		},
 		AWSMailer: cmailer.AWSConfig{
 			Region:          appConfig.AWS.Region,
